@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Players Management</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body id="div_body">
+
+<div style="background-color: #ccc; padding: 10px 10px; display: flex; justify-content: flex-end;">
+  <img src="assets/images/SentinelDATA-navbar.png" width="200" height="150" alt="Features" style="margin-right: 110px;" />
+</div>
+
+
+<div>
+<div [class.disabled]="showOtherDiv || showSigninDiv">
+  <div id="div_accounts" class="container mt-5"  >
+    <div>
+      <h1 class="mb-4">liste des Clients :</h1>
+      <button class="btn btn-primary mb-3" (click)="toggleShowAddSupplierDiv()">
+        <i class="fas fa-user-plus"></i> ajouter un client
+      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+      <button class="btn btn-primary mb-3" (click)="goToPage()">
+        <i class="fas fa-file-alt"></i>  Rapports
+      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+      <button class="btn btn-primary mb-3" (click)="goTosolutionPage()">
+        <i class="fas fa-lightbulb"></i>  solution JUNO
+      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+      <table class="table table-custom">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Client</th>
+          <th>Email</th>
+          <th>Details</th>
+          <th>Grossistes</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Loop through 6 rows, filling with data or keeping empty -->
+        <tr *ngFor="let row of getDisplayRows(); let i = index">
+          <td>{{ suppliers[i]?.id || '-' }}</td>
+          <td>{{ suppliers[i]?.name || '' }}</td>
+          <td>{{ suppliers[i]?.email || '' }}</td>
+          <td>
+            <button *ngIf="suppliers[i]" class="btn btn-danger btn-sm" (click)="viewDetails(suppliers[i].id)">
+              <i class="fas fa-info-circle"></i> Données
+            </button>
+            <span *ngIf="!suppliers[i]"></span>
+          </td>
+          <td>
+            <button *ngIf="suppliers[i]" class="btn btn-danger btn-sm" (click)="viewClients(suppliers[i].id)">
+              <i class="fas fa-folder-open"></i> Liste des grossistes
+            </button>
+            <span *ngIf="!suppliers[i]"></span>
+          </td>
+          <td>
+            <button *ngIf="suppliers[i]" class="btn btn-danger btn-sm" (click)="generateInvoice(suppliers[i].id)">
+              <i class="fas fa-file-invoice"></i> Facturation client
+            </button>
+            <span *ngIf="!suppliers[i]"></span>
+          </td>
+        </tr>
+        </tbody>
+      </table>      <div *ngIf="showSupplierDiv" class="fieldset-container">
+        <fieldset class="border p-3 mt-4">
+          <!-- Edit Supplier Section -->
+          <div *ngIf="showInfoSupplierDiv" [class.disabled]="showSolutionDiv">
+            <legend class="w-auto">Info(client)</legend>
+            <button type="button" class="close" aria-label="Close" (click)="toggleShowInfoSupplierDiv()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <br><br>
+            <div class="form-group">
+              <label for="nameInput">Nom</label>
+              <input type="text" class="form-control" id="nameInput" placeholder="Enter name" [(ngModel)]="selectedSupplier.name">
+            </div>
+
+            <!-- Email + Solution in one row -->
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label for="emailInput">Email</label>
+                <input type="email" class="form-control" id="emailInput" placeholder="Enter email" [(ngModel)]="selectedSupplier.email">
+              </div>
+              <div class="col-md-6 position-relative" style="margin: 0 auto;">
+                <label>Solution</label>
+
+                <!-- Clickable view solution field -->
+                <div class="form-control p-2"
+                     style="cursor: pointer; position: relative; width: 440px; margin: 0 auto;"
+                     (click)="toggleSolutionsDropdown()">
+                  <span style="color: #6c757d;">Voir les solutions</span>
+                  <i class="fas fa-chevron-down"
+                     [class.fa-chevron-up]="showSolutionsDropdown"
+                     style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                </div>
+
+                <!-- Solutions dropdown -->
+                <div class="position-absolute bg-white border rounded shadow-sm"
+                     [class.d-none]="!showSolutionsDropdown"
+                     style="z-index: 1000; max-height: 200px; overflow-y: auto; width: 440px; left: 50%; transform: translateX(-50%);">
+
+                  <div *ngFor="let solution of supplierSolutions"
+                       class="d-flex align-items-center justify-content-between p-2 hover-bg">
+                    <span>{{ solution.description }}</span>
+                    <button class="btn btn-sm p-0 text-danger"
+                            (click)="removeSolution(solution.id); $event.stopPropagation()">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+
+                  <div *ngIf="supplierSolutions.length === 0" class="p-2 text-muted">
+                    Aucune solution disponible
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Matricule Fiscale + RIB in one row -->
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label for="matricule_fiscaleInput">Matricule Fiscale</label>
+                <input type="text" class="form-control" id="matricule_fiscaleInput" placeholder="Enter matricule fiscale" [(ngModel)]="selectedSupplier.matricule_fiscale">
+              </div>
+              <div class="col-md-6">
+                <label for="ribInput">RIB</label>
+                <input type="number" class="form-control" id="ribInput" placeholder="Enter RIB" [(ngModel)]="selectedSupplier.rib">
+              </div>
+            </div>
+
+            <!-- Address + Date Contrat in one row -->
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label for="adressInput">Addresse</label>
+                <input type="text" class="form-control" id="adressInput" placeholder="Enter address" [(ngModel)]="selectedSupplier.adress">
+              </div>
+              <div class="col-md-6">
+                <label for="dateContratInput">Date de Contrat</label>
+                <input type="date" class="form-control" id="dateContratInput" [(ngModel)]="selectedSupplier.dateDeContrat">
+              </div>
+            </div>
+
+            <div class="form-group mt-3 button-container">
+              <button class="btn btn-success" style="margin-left: 10px;" (click)="toggleSolutionnDiv()">
+                <i class="fas fa-plus-circle"></i> ajouter une solution
+              </button>
+              <button class="btn btn-warning" id="updateButton" (click)="updateSupplier()">
+                <i class="fas fa-edit"></i> Modifier
+              </button>
+              <button class="btn btn-danger" id="deleteButton" style="margin-left: 10px;" (click)="deleteSupplier()">
+                <i class="fas fa-trash-alt"></i> Supprimer
+              </button>
+            </div>
+          </div>
+
+          <!-- Add Supplier Section -->
+          <!-- Add Supplier Section - Updated with new fields -->
+          <div *ngIf="showAddSupplierDiv" class="supplier-form-container">
+            <legend class="w-auto">Ajouter un client</legend>
+            <button type="button" class="close" aria-label="Close" (click)="toggleShowAddSupplierDiv()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <br><br>
+
+            <!-- Name + Email -->
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label>Nom </label>
+                <input type="text" class="form-control" placeholder="Enter name"
+                       [(ngModel)]="SelectedSupplier.name" name="name" required>
+              </div>
+              <div class="col-md-6">
+                <label>Email </label>
+                <input type="email" class="form-control" placeholder="Enter email"
+                       [(ngModel)]="SelectedSupplier.email" name="email" required>
+              </div>
+            </div>
+
+            <!-- Matricule Fiscale + RIB -->
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label>Matricule Fiscale</label>
+                <input type="text" class="form-control" placeholder="Enter matricule fiscale"
+                       [(ngModel)]="SelectedSupplier.matricule_fiscale" name="matricule_fiscale">
+              </div>
+              <div class="col-md-6">
+                <label>RIB</label>
+                <input type="number" class="form-control" placeholder="Enter RIB"
+                       [(ngModel)]="SelectedSupplier.rib" name="RIB">
+              </div>
+            </div>
+
+            <!-- Address + Date de Contrat -->
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label>Addresse</label>
+                <input type="text" class="form-control" placeholder="Enter address"
+                       [(ngModel)]="SelectedSupplier.adress" name="adress">
+              </div>
+              <!-- Change the date input binding to handle null -->
+              <div class="col-md-6">
+                <label>Date de Contrat</label>
+                <!-- Bind directly to the string date without conversion -->
+                <input type="date" class="form-control"
+                       [(ngModel)]="SelectedSupplier.dateDeContrat"
+                       name="dateDeContrat">
+              </div>
+            </div>
+
+            <div class="form-group mt-3 button-container">
+              <button class="btn btn-success" (click)="addSupplier()"
+                      [disabled]="!SelectedSupplier.name || !SelectedSupplier.email">
+                <i class="fas fa-plus"></i> Ajouter un client
+              </button>
+            </div>
+          </div>
+          <!-- Floating Solutions Panel -->
+          <div *ngIf="showSolutionDiv" class="solutions-panel" id="solutionsPanel">
+            <div class="panel-header">
+              <label>Solutions disponibles</label>
+              <button class="close-btn" id="closePanel" (click)="toggleSolutionnDiv()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <div class="solutions-container">
+              <div class="solution-item" *ngFor="let solution of solutions">
+                <span>{{ solution.description }}</span>
+                <button class="add-btn" (click)="addSolutionToSupplier(solution.id)">
+                  <i class="fas fa-plus"></i> Ajouter
+                </button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div id="div_client">
+        <div *ngIf="showClientDiv" class="red-background-container">
+          <div  class="container mt-5">
+            <h1 class="mb-4">liste des  Grossistes de {{selectedSupplier?.name}}:</h1>
+            <button class="btn btn-primary mb-3" (click)="toggleShowAddClientDiv()">
+              <i class="fas fa-user-plus"></i> ajouter un Grossistes
+            </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+            <!-- Table to display clients -->
+            <table class="table table-custom">
+              <thead>
+              <tr>
+                <th>ID</th>
+                <th>Grossistes</th>
+                <th>Email</th>
+                <th>Details</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              <!-- Dynamically display clients -->
+              <tr *ngFor="let client of clients">
+                <td>{{ client.id }}</td>
+                <td>{{ client.name }}</td>
+                <td>{{ client.email }}</td>
+                <td>
+                  <button class="btn btn-danger btn-sm" (click)="viewClientDetails(client.id)">
+                    <i class="fas fa-info-circle"></i> Données
+                  </button>
+                </td>
+                <td>
+                  <button class="btn btn-danger btn-sm" (click)="generateInvoiceclient(client.id)">
+                    <i class="fas fa-file-invoice"></i> génération BDC
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <!-- Client Details Fieldset -->
+            <div *ngIf="showClientInfoDiv" class="fieldset-container">
+              <fieldset class="fieldset-two border p-3 mt-4">
+                <div *ngIf="showInfoClientInfoDiv">
+                  <legend class="w-auto">Grossiste {{selectedClient?.name}} du client {{selectedSupplier?.name}}</legend>
+                  <!-- Close Icon in the top-right corner -->
+                  <button type="button" class="close" aria-label="Close" (click)="toggleShowInfoClientrDiv()">
+                    <span aria-hidden="true">&times;</span> <!-- The cross icon -->
+                  </button>
+                  <br><br>
+                  <div class="form-group">
+                    <label for="nameInput">Nom</label>
+                    <input type="text" class="form-control" placeholder="Enter name" [(ngModel)]="selectedClient.name">
+                  </div>
+
+                  <!-- Matricule Fiscale + email in one row -->
+                  <div class="form-group row">
+                    <div class="col-md-6">
+                      <label for="emailInput">Email</label>
+                      <input type="email" class="form-control" placeholder="Enter email" [(ngModel)]="selectedClient.email">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="nameInput">matricule fiscale</label>
+                      <input type="text" class="form-control" placeholder="Enter matricule fiscale" [(ngModel)]="selectedClient.matricule_fiscale">
+                    </div>
+                  </div>
+                  <!-- adresse + identifiant in one row -->
+                  <div class="form-group row">
+                    <div class="col-md-6">
+                      <label for="emailInput">Adresse</label>
+                      <input type="email" class="form-control" placeholder="Enter adress" [(ngModel)]="selectedClient.adress">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="emailInput">Identifiant unique</label>
+                      <input type="number" class="form-control" placeholder="Enter Unique Identifier(number)" [(ngModel)]="selectedClient.uniqueIdentifier">
+                    </div>
+                  </div>
+
+                  <!-- Buttons for Delete and Update -->
+
+                  <div class="form-group mt-3 button-container">
+                    <button class="btn btn-info" (click)="fetchClientExcelData()">
+                      <i class="fas fa-file-excel"></i> Details
+                    </button>
+                    <button class="btn btn-warning" (click)="updateClient()">
+                      <i class="fas fa-edit"></i> Modifier
+                    </button>
+                    <button class="btn btn-danger" style="margin-left: 10px;" (click)="deleteClient()">
+                      <i class="fas fa-trash-alt"></i> Supprimer
+                    </button>
+                  </div>
+
+                </div>
+
+                <!-- Excel Data Fieldset (Complete) -->
+                <div *ngIf="showExcelDataDiv" class="fieldsetExcel-containerExcel">
+                  <fieldset class="fieldset-two border p-3 mt-5" style="margin-top: 10rem ;">
+                    <!--<fieldset class="fieldset-two border p-3 mt-5" style="margin-top: 10rem ; margin-left: 9rem;"> -->
+
+                    <div>
+                      <legend class="w-auto">Grossiste Situation Details</legend>
+                      <button type="button" class="close" aria-label="Close" (click)="toggleShowExcelDataDiv()">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                      <br><br>
+
+                      <!-- Excel Data Display -->
+                      <!-- Excel Data Display -->
+                      <div *ngIf="clientExcelData">
+                        <!-- Financial Data --><br>
+                        <div class="row">
+                          <div class="col-auto narrow-input">
+                            <div class="form-group">
+                              <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Poids</label>
+                              <input type="number" class="form-control" [(ngModel)]="clientExcelData.poids">
+                            </div>
+                          </div>
+                          <div class="col-auto narrow-input">
+                            <div class="form-group">
+                              <label>Global Amount</label>
+                              <input type="number" class="form-control" [(ngModel)]="clientExcelData.globalAmount">
+                            </div>
+                          </div>
+                          <div class="col-auto narrow-input">
+                            <div class="form-group">
+                              <label>Annual Payment</label>
+                              <input type="number" class="form-control" [(ngModel)]="clientExcelData.annualPayment" readonly>
+                            </div>
+                          </div>
+                          <div class="col-auto narrow-input">
+                            <div class="form-group">
+                              <label>Monthly Payment</label>
+                              <input type="number" class="form-control" [(ngModel)]="clientExcelData.monthlyPayment" readonly>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Q1 (Jan-Mar) -->
+                        <h5>trimestre 1 (Jan - Mar)</h5>
+                        <div class="row align-items-center">
+                          <!-- Months -->
+                          <div class="col-md-3">
+                            <div class="row" style="display: flex; flex-wrap: nowrap;">
+                                <div style="flex: 1; min-width: 0; margin-right: -3px;" *ngFor="let month of ['janStatus', 'febStatus', 'marStatus']">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;{{ month.slice(0, 3) }}</label>
+                                  <select  type="text" class="form-control form-control-sm" [(ngModel)]="clientExcelData[month]">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Q1 Data -->
+                          <div class="col-md-9">
+                            <div class="row">
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BC on</label>
+                                  <input type="number" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q1BcCount" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">Payment Status</label>
+                                  <input type="text" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q1PaymentStatus" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount</label>
+                                  <input type="number" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q1Amount" readonly>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Q2 (Apr-Jun) -->
+                        <h5>trimestre 2 (Apr - Jun)</h5>
+                        <div class="row align-items-center">
+                          <!-- Months -->
+                          <div class="col-md-3">
+                            <div class="row" style="display: flex; flex-wrap: nowrap;">
+                              <div style="flex: 1; min-width: 0; margin-right: -3px;" *ngFor="let month of ['aprStatus', 'mayStatus', 'junStatus']">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;{{ month.slice(0, 3) }}</label>
+                                  <select type="text" class="form-control form-control-sm" [(ngModel)]="clientExcelData[month]">
+                                  <option value="Yes">Yes</option>
+                                  <option value="No">No</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Q2 Data -->
+                          <div class="col-md-9">
+                            <div class="row">
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BC on</label>
+                                  <input type="number" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q2BcCount" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">Payment Status</label>
+                                  <input type="text" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q2PaymentStatus" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount</label>
+                                  <input type="number" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q2Amount" readonly>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Q3 (Jul-Sep) -->
+                        <h5>trimestre 3 (Jul - Sep)</h5>
+                        <div class="row align-items-center">
+                          <!-- Months -->
+                          <div class="col-md-3">
+                            <div class="row" style="display: flex; flex-wrap: nowrap;">
+                              <div style="flex: 1; min-width: 0; margin-right: -3px;" *ngFor="let month of ['julStatus', 'augStatus', 'sepStatus']">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;{{ month.slice(0, 3) }}</label>
+                                  <select type="text" class="form-control form-control-sm" [(ngModel)]="clientExcelData[month]">
+                                  <option value="Yes">Yes</option>
+                                  <option value="No">No</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Q3 Data -->
+                          <div class="col-md-9">
+                            <div class="row">
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BC on</label>
+                                  <input type="number" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q3BcCount" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">Payment Status</label>
+                                  <input type="text" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q3PaymentStatus" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount</label>
+                                  <input type="number" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q3Amount" readonly>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Q4 (Oct-Dec) -->
+                        <h5>trimestre 4 (Oct - Dec)</h5>
+                        <div class="row align-items-center">
+                          <!-- Months -->
+                          <div class="col-md-3">
+                            <div class="row" style="display: flex; flex-wrap: nowrap;">
+                              <div style="flex: 1; min-width: 0; margin-right: -3px;" *ngFor="let month of ['octStatus', 'novStatus', 'decStatus']">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;{{ month.slice(0, 3) }}</label>
+                                  <select type="text" class="form-control form-control-sm" [(ngModel)]="clientExcelData[month]">
+                                  <option value="Yes">Yes</option>
+                                  <option value="No">No</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Q4 Data -->
+                          <div class="col-md-9">
+                            <div class="row">
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BC on</label>
+                                  <input type="number" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q4BcCount" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">Payment Status</label>
+                                  <input type="text" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q4PaymentStatus" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                  <label class="small">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount</label>
+                                  <input type="number" class="form-control form-control-sm" [(ngModel)]="clientExcelData.q4Amount" readonly>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Update Button -->
+                        <div class="form-group mt-3 button-container">
+                          <button class="btn btn-warning" (click)="updateExcelData()">
+                            <i class="fas fa-edit"></i> Modifier
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </fieldset>
+                </div>
+
+
+                <!-- Add Client Form -->
+                <div *ngIf="showAddClientInfoDiv">
+                  <legend class="w-auto">Ajouter un Grossiste</legend>
+                  <!-- Close Icon in the top-right corner -->
+                  <button type="button" class="close" aria-label="Close" (click)="toggleShowAddClientDiv()">
+                    <span aria-hidden="true">&times;</span> <!-- The cross icon -->
+                  </button>
+                  <br><br>
+                  <div class="form-group">
+                    <label for="nameInput">Nom</label>
+                    <input type="text" class="form-control" placeholder="Enter name" [(ngModel)]="SelectedClient.name">
+                  </div>
+
+                  <!-- Matricule Fiscale + email in one row -->
+                  <div class="form-group row">
+                    <div class="col-md-6">
+                      <label for="emailInput">Email</label>
+                      <input type="email" class="form-control" placeholder="Enter email" [(ngModel)]="SelectedClient.email">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="nameInput">matricule fiscale</label>
+                      <input type="text" class="form-control" placeholder="Enter matricule fiscale" [(ngModel)]="SelectedClient.matricule_fiscale">
+                    </div>
+                  </div>
+                  <!-- adresse + identifiant in one row -->
+                  <div class="form-group row">
+                    <div class="col-md-6">
+                      <label for="emailInput">Adresse</label>
+                      <input type="email" class="form-control" placeholder="Enter adress" [(ngModel)]="SelectedClient.adress">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="emailInput">Identifiant unique</label>
+                      <input type="number" class="form-control" placeholder="Enter Unique Identifier(number)" [(ngModel)]="SelectedClient.uniqueIdentifier">
+                    </div>
+                  </div>
+
+                  <!-- Button for Add -->
+                  <div class="form-group mt-3 button-container">
+                    <button class="btn btn-success" (click)="addClient()">
+                      <i class="fas fa-plus"></i> Ajouter
+                    </button>
+                  </div>
+                </div>
+
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

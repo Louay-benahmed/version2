@@ -1,0 +1,424 @@
+/* Background color change to grey */
+body {
+  background-color: #f0f0f0; /* Light grey background for the whole body */
+  color: #333; /* Dark text color for readability */
+  position: relative;
+}
+
+/* Button styles with red and grey */
+.btn-primary, .btn-danger {
+  background-color: #d32f2f; /* Red background for buttons */
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover, .btn-danger:hover {
+  background-color: #b71c1c; /* Darker red for hover effect */
+}
+
+/* Styling for the fieldset */
+
+.fieldset-container {
+  display: flex; /* Enable flexbox on the container */
+  justify-content: center; /* Center the fieldset horizontally */
+  align-items: center; /* Center the fieldset vertically */
+}
+
+.fieldsetExcel-containerExcel {
+  display: flex; /* Enable flexbox on the container */
+  justify-content: center; /* Center the fieldset horizontally */
+  align-items: center; /* Center the fieldset vertically */
+}
+
+fieldset {
+  width: 85%; /* Set width to 80% of the container or body */
+  border: 10px solid #ccc; /* Light grey border to match the page's theme */
+  padding: 20px; /* Padding inside the fieldset */
+  background-color: #f0f0f0; /* Light grey background to match the body */
+  border-radius: 10px; /* Rounded corners for the fieldset */
+  margin-top: 20px; /* Space above the fieldset */
+  transform: translateY(-470px); /* Move it 30px down */
+  z-index: 10000;  /* Ensure it's above any inner content */
+}
+.fieldset-two {
+  width: 85%; /* Set width to 80% of the container or body */
+  border: 10px solid #ccc; /* Light grey border to match the page's theme */
+  padding: 20px; /* Padding inside the fieldset */
+  background-color: #f0f0f0; /* Light grey background to match the body */
+  border-radius: 10px; /* Rounded corners for the fieldset */
+  margin-top: 20px; /* Space above the fieldset */
+  transform: translateY(-400px); /* Move it 30px down */
+
+}
+
+/* Styling for the legend */
+legend {
+  font-size: 1.2em; /* Slightly larger font size */
+  font-weight: bold; /* Bold text for the legend */
+  color: #333; /* Dark color for the legend text */
+  padding: 0 10px; /* Padding to separate from the fieldset's border */
+  background-color: #e0e0e0; /* Light grey background for the legend */
+  width: auto; /* Auto width to adjust based on the content */
+}
+
+/* Form group label styling */
+.form-group label {
+  font-size: 1rem; /* Font size for the label */
+  color: #333; /* Dark color for labels */
+}
+
+/* Input field styling */
+.form-group input {
+  border-radius: 5px; /* Rounded corners for the input fields */
+  border: 1px solid #ccc; /* Light grey border for inputs */
+  padding: 10px; /* Padding inside the input fields */
+  width: 100%; /* Full width input fields */
+  background-color: #fff; /* White background for input fields */
+  color: #333; /* Dark text for input fields */
+}
+
+/* Add space between buttons */
+.form-group button {
+  margin-left: 10px;
+}
+
+.close {
+  position: absolute; /* Absolute positioning inside the fieldset */
+  top: 7px; /* Position it 10px from the top */
+  right: 30px; /* Position it 10px from the right */
+  font-size: 3em; /* Size of the cross */
+  color: #d32f2f; /* Dark color for the icon */
+  background: none; /* Remove background */
+  border: none; /* Remove border */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.close:hover {
+  color: #d32f2f; /* Change the color on hover */
+}
+
+/* Move the div with the id 'div_client' to a specific position */
+
+
+/* Red background for the parent div */
+.red-background-container {
+  background-color: #f0f0f0; /* Set background color to red */
+  padding: 20px; /* Optional: add padding to the container */
+  border-radius: 10px; /* Optional: rounded corners for the outer div */
+}
+
+#div_client {
+  position: absolute;
+  top: 665px;
+  background-color: #f0f0f0; /* Light background for the #div_client */
+  padding: 20px; /* Optional: padding inside the #div_client */
+  border-radius: 10px; /* Optional: rounded corners for #div_client */
+  left: 50%;
+  transform: translateX(-50%); /* Center the container */
+  width: 100%; /* Increase the width to 90% of the page */
+
+}
+
+legend {
+  position: relative;
+  width: 20%;
+  top: -8px; /* Adjust based on your layout */
+  left: 5px; /* Change to right: 10px; for right alignment */
+  background: #ccc;
+  padding: 5px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end; /* Push buttons to the right */
+  gap: 10px; /* Add spacing between buttons */
+}
+
+
+/* Table with grey accents */
+/* Table with grey accents */
+.table-custom {
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: #fff; /* White background for table */
+  border: 1px solid #ccc; /* Light grey border */
+}
+
+.table-custom th {
+  background-color: #e0e0e0; /* Light grey header */
+  color: #333; /* Dark text color for headers */
+}
+
+.table-custom td {
+  color: #555; /* Dark grey text for table cells */
+}
+
+/* Ensure the table body is scrollable after 5 lines */
+.table-custom tbody {
+  display: block;
+  max-height: 270px; /* Adjust this value based on your row height */
+  overflow-y: auto;
+}
+
+/* Ensure the table header and body align correctly */
+.table-custom thead,
+.table-custom tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed; /* Ensures columns respect the fixed widths */
+}
+
+/* Optional: Add a border to the scrollable area */
+.table-custom tbody {
+  border-top: 1px solid #ccc;
+}
+
+/* Set fixed widths for the header and body columns */
+.table-custom thead th:nth-child(1),
+.table-custom tbody td:nth-child(1) {
+  width: 10%; /* Adjust this value for the ID column */
+}
+
+.table-custom thead th:nth-child(2),
+.table-custom tbody td:nth-child(2) {
+  width: 20%; /* Adjust this value for the Fournisseur column */
+}
+
+.table-custom thead th:nth-child(3),
+.table-custom tbody td:nth-child(3) {
+  width: 25%; /* Adjust this value for the Email column */
+}
+
+.table-custom thead th:nth-child(4),
+.table-custom tbody td:nth-child(4) {
+  width: 15%; /* Adjust this value for the Details column */
+}
+
+.table-custom thead th:nth-child(5),
+.table-custom tbody td:nth-child(5) {
+  width: 15%; /* Adjust this value for the Clients column */
+}
+
+.table-custom thead th:nth-child(6),
+.table-custom tbody td:nth-child(6) {
+  width: 15%; /* Adjust this value for the Actions column */
+}
+/* Excel Error div  */
+.title {
+  font-size: 2.2rem;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.input-field {
+  max-width: 380px;
+  width: 100%;
+  background-color: #f0f0f0;
+  margin: 10px 0;
+  height: 55px;
+  border-radius: 55px;
+  display: grid;
+  grid-template-columns: 15% 85%;
+  padding: 0 0.4rem;
+  position: relative;
+}
+
+.input-field i {
+  text-align: center;
+  line-height: 55px;
+  color: #acacac;
+  transition: 0.5s;
+  font-size: 1.1rem;
+}
+
+.input-field input {
+  background: none;
+  outline: none;
+  border: none;
+  line-height: 1;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
+  width: 100%;
+}
+
+.input-field input::placeholder {
+  color: #aaa;
+  font-weight: 500;
+}
+
+
+
+
+.btn.transparent {
+  margin: 0;
+  background: none;
+  border: 2px solid #fff;
+  width: 130px;
+  height: 41px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+
+@media (max-width: 600px) {
+  .sign-up-field {
+    width: 90%;
+    padding: 10px;
+  }
+}
+.hover-bg:hover {
+  background-color: #f8f9fa;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////////////////////*/
+/* Overlay covers entire screen but doesn't block interaction */
+.excel-error-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  justify-content: flex-start; /* Changed from center */
+  align-items: center;
+  padding-left: 150px; /* Adjust this value to move right */
+
+}
+
+/* Modal styling - appears above overlay */
+.excel-error-modal {
+  /* Your existing sign-up-field styles */
+  padding: 20px;
+  background-color: #eb4444;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+
+  /* Additional bordered-red styles */
+  border: 2px solid #ffffff;
+  padding: 90px;
+  position: relative;
+  width: fit-content;
+  right: 70px;
+  top: 0px;
+  background-color: #d32f2f;
+
+  /* Modal-specific adjustments */
+  width: 550px;
+  max-width: 90%;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+  /* Ensures content stays centered */
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+
+/* Floating Solutions Panel */
+.solutions-panel {
+  position: fixed;
+  width: 480px;
+  right: 220px;
+  top: 120px;
+  z-index: 1050;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.panel-title {
+  font-weight: bold;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.close-btn:hover {
+  color: #dc3545;
+}
+
+/* Rest of your existing CSS remains the same */
+.solutions-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.solution-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: #f8f9fa;
+}
+
+.add-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background: #218838;
+}
+
+.draggable {
+  cursor: grab;
+}
+
+.draggable:active {
+  cursor: grabbing;
+}
+
+
+
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: brightness(70%);
+  transition: all 0.3s ease;
+}
+.wide-column {
+  width: 40%; /* or any specific value */
+  min-width: 300px; /* optional minimum */
+}
+/* In your component CSS or global styles */
+/* Optional: Add focus state for accessibility */
+input[readonly]:focus {
+  border-color: #b3b3b3;      /* Slightly darker border on focus */
+  box-shadow: inset 60px 60px 60px rgba(0.1,0.1,0.1,0.1);
+}
+.narrow-input .form-control {
+  max-width: 127px;  /* Adjust as needed */
+}
+

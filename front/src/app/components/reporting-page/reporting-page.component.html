@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice Management System</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<header style="background-color: #ccc; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+  <i class="app-title">&nbsp;&nbsp;&nbsp;&nbsp;Gestion des factures</i>
+  <img
+    src="assets/images/SentinelDATA-navbar.png"
+    width="200"
+    height="150"
+    alt="Company Logo"
+    style="margin-right: 110px;"
+  />
+</header>
+
+
+
+<main class="app-container">
+  <section class="dashboard-section">
+    <div style="display: flex; gap: 10px;">
+      <button (click)="goToPage()" class="btn btn-primary" style="height: 40px;">
+        <i class="fas fa-home"></i> &nbsp;&nbsp;Accueil
+      </button>
+      <button (click)="goToPageManagement()" class="btn btn-success" style="height: 40px;">
+        <i class="fas fa-tasks"></i> &nbsp;&nbsp;Gestion
+      </button>
+    </div>
+
+    <br>
+    <h2 class="section-title">
+      <i class="fas fa-chart-bar"></i> Aperçu du statut du paiement
+      <span *ngIf="isLoading" class="loading-indicator">Loading...</span>
+    </h2>
+  </section>
+</main>
+
+<section class="dashboard-section">
+  <div class="row chart-row">
+    <!-- Stacked Bar Chart -->
+    <div class="col-md-6">
+      <div class="chart-container-Payment-Status">
+        <h4 class="chart-title">
+          <i class="fas fa-money-bill-wave me-2"></i>Statut du paiement
+        </h4>
+        <div class="chart-wrapper">
+          <canvas id="paymentChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <!-- Donut Chart -->
+    <div class="col-md-6">
+      <div class="chart-container-Document-Distribution">
+        <h4 class="chart-title">
+          <i class="fas fa-chart-pie me-2"></i>Distribution de documents
+        </h4>
+        <div class="chart-wrapper">
+          <canvas id="donutChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

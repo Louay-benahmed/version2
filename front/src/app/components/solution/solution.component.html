@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solutions Management</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body id="div_body">
+<div style="background-color: #ccc; padding: 10px 10px; display: flex; justify-content: flex-end;">
+  <img src="assets/images/SentinelDATA-navbar.png" width="200" height="150" alt="Features" style="margin-right: 110px;" />
+</div>
+
+<!-- Main Content -->
+<main class="container-fluid main-content">
+  <!-- Page Title and Actions -->
+  <div class="page-header">
+    <h1 class="page-title">Liste des Solutions</h1>
+    <div class="action-buttons">
+      <button class="btn btn-action btn-return" (click)="goToPage()">
+        <i class="fas fa-arrow-left"></i> Retour
+      </button>
+      <button class="btn btn-action btn-add" (click)="startAddingNewSolution()">
+        <i class="fas fa-user-plus"></i> Ajouter une Solution
+      </button>
+
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-solutions table-hover">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Description</th>
+        <th>Prix</th>
+        <th>Tax</th>
+        <th *ngIf="isAddingNewSolution">client</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <!-- Add this new row at the top of tbody for adding new solutions -->
+      <tr *ngIf="isAddingNewSolution" class="table-info">
+        <td>Nouvelle</td>
+        <td>
+          <input [(ngModel)]="newSolution.description"
+                 class="form-control">
+        </td>
+        <td>
+          <input [(ngModel)]="newSolution.prix"
+                 type="number"
+                 class="form-control">
+        </td>
+        <td>
+          <input [(ngModel)]="newSolution.tax"
+                 type="number"
+                 class="form-control">
+        </td>
+        <!-- Add supplier selection -->
+        <td>
+          <select class="form-control"
+                  multiple
+                  [(ngModel)]="selectedSupplierNames"
+                  style="width: 100%; height: 80px;">
+            <option *ngFor="let supplier of suppliers" [value]="supplier.name">
+              {{ supplier.name }}
+            </option>
+          </select>
+        </td>
+
+        <td align="center">
+          <div class="btn-group">
+            <button class="btn btn-sm btn-success" (click)="saveNewSolution()">
+              <i class="fas fa-save"></i> Ajouter
+            </button>
+            <button class="btn btn-sm btn-secondary" (click)="cancelAddNewSolution()">
+              <i class="fas fa-times"></i> Annuler
+            </button>
+          </div>
+        </td>
+      </tr>
+
+      <tr *ngFor="let solution of solutions"
+          [class.table-active]="selectedSolution?.id === solution.id"
+          (click)="!isEditing && selectSolution(solution)">
+        <td>{{ solution.id }}</td>
+        <td>
+          <span *ngIf="!isEditing || selectedSolution?.id !== solution.id">
+            {{ solution.description }}
+          </span>
+          <input *ngIf="isEditing && selectedSolution?.id === solution.id"
+                 [(ngModel)]="editedSolution.description"
+                 (click)="$event.stopPropagation()"
+                 class="form-control">
+        </td>
+        <td>
+          <span *ngIf="!isEditing || selectedSolution?.id !== solution.id">
+            {{ solution.prix | number:'1.2-2' }} TND
+          </span>
+          <input *ngIf="isEditing && selectedSolution?.id === solution.id"
+                 [(ngModel)]="editedSolution.prix"
+                 (click)="$event.stopPropagation()"
+                 type="number"
+                 class="form-control">
+        </td>
+        <td>
+          <span *ngIf="!isEditing || selectedSolution?.id !== solution.id">
+            {{ solution.tax }}%
+          </span>
+          <input *ngIf="isEditing && selectedSolution?.id === solution.id"
+                 [(ngModel)]="editedSolution.tax"
+                 (click)="$event.stopPropagation()"
+                 type="number"
+                 class="form-control">
+        </td>
+        <td align="center">
+          <div class="btn-group" *ngIf="selectedSolution?.id === solution.id; else viewMode">
+            <button *ngIf="!isEditing" class="btn btn-sm btn-primary" (click)="startEditing($event)">
+              <i class="fas fa-edit"></i> Modifier
+            </button>
+            <button *ngIf="!isEditing" class="btn btn-sm btn-danger" (click)="deleteSolution(solution.id, $event)">
+              <i class="fas fa-trash"></i> Supprimer
+            </button>
+            <button *ngIf="isEditing" class="btn btn-sm btn-success" (click)="saveChanges($event)">
+              <i class="fas fa-save"></i> Enregistrer
+            </button>
+            <button *ngIf="isEditing" class="btn btn-sm btn-secondary" (click)="cancelEditing($event)">
+              <i class="fas fa-times"></i> Annuler
+            </button>
+          </div>
+          <ng-template #viewMode>
+            <button class="btn btn-sm btn-outline-secondary"
+                    (click)="selectSolution(solution); $event.stopPropagation()"
+                    style="pointer-events: auto; opacity: 0.65;">
+              Sélectionnez pour modifier
+            </button>
+          </ng-template>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Supplier Details Section -->
+  <div *ngIf="showSupplierDiv" class="supplier-details">
+    <fieldset class="supplier-fieldset">
+      <!-- Edit Supplier Section -->
+      <div *ngIf="showInfoSupplierDiv" [class.disabled]="showSolutionDiv">
+        <legend class="fieldset-legend">
+          Info(Fournisseur)
+          <button type="button" class="close-btn" aria-label="Close">
+            <i class="fas fa-times"></i>
+          </button>
+        </legend>
+
+        <div class="form-container">
+          <div class="form-group">
+            <label for="nameInput">Name</label>
+            <input type="text" class="form-control" id="nameInput" placeholder="Enter name">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="emailInput">Email</label>
+              <input type="email" class="form-control" id="emailInput" placeholder="Enter email">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="matricule_fiscaleInput">Matricule Fiscale</label>
+              <input type="text" class="form-control" id="matricule_fiscaleInput" placeholder="Enter matricule fiscale">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="ribInput">RIB</label>
+              <input type="text" class="form-control" id="ribInput" placeholder="Enter RIB">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="adressInput">Address</label>
+              <input type="text" class="form-control" id="adressInput" placeholder="Enter address">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="dateContratInput">Date de Contrat</label>
+              <input type="date" class="form-control" id="dateContratInput">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-action btn-add-solution">
+              <i class="fas fa-plus-circle"></i> Add Solution
+            </button>
+            <button class="btn btn-action btn-update">
+              <i class="fas fa-edit"></i> Update
+            </button>
+            <button class="btn btn-action btn-delete">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      </fieldset>
+  </div>
+</main>
+</body>
+</html>

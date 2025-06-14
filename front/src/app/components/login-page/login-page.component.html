@@ -1,0 +1,109 @@
+<div class="login-view">
+
+<div [class.disabled]="showOtherDiv || showdescriptionDiv" class="container">
+  <div class="forms-container">
+    <div class="signin-signup">
+      <form [class.disabled]="showOtherDiv || showdescriptionDiv" action="#" class="sign-in-form">
+        <img  ngSrc="assets/images/SentinelDATA.png" width="225" height="225" alt="Features" priority  />
+      </form>
+    </div>
+  </div>
+  <div class="panels-container">
+    <div [class.disabled]="showOtherDiv || showdescriptionDiv" class="panel left-panel">
+      <div class="content">
+        <h2 class="title">Sign in</h2>
+        <br><br>
+        <div class="input-field">
+          <i class="fas fa-user"></i>
+          <input type="email" placeholder="Username"  [(ngModel)]="email"   />
+        </div>
+        <div class="input-field">
+          <i class="fas fa-lock"></i>
+          <input type="password" placeholder="Password" [(ngModel)]="password"  />
+        </div>
+        <br>
+        <button (click)="sign_up()" class="btn transparent">
+          Sign up
+        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button (click)="login()" class="btn transparent" id="sign-up-btn">
+          login
+        </button>
+
+        <!-- Add Forgot Password link -->
+        <p class="forgot-password">
+          <a (click)="sendCode()" style="color: white;">Forgot your password?</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- the hidden div of sign up-->
+<div *ngIf="showOtherDiv" class="sign-up-field bordered-red"  >
+  <!-- verification code  -->
+  <div *ngIf="showverificationcodDiv">
+    <h2 class="title">enter verification code</h2>
+    <br>
+    <div class="input-field">
+      <i class="fas fa-lock"></i>
+      <input type="password" name="password" [(ngModel)]="enteredCode" placeholder="code" required />
+    </div>
+    <br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <button (click)="verifyCode()" class="btn transparent">
+      ok
+    </button>
+  </div>
+  <!-- reset password  -->
+  <div *ngIf="showOtherresetpassword">
+    <h2 class="title">&nbsp;&nbsp;reset password</h2>
+    <br>
+    <div  class="input-field">
+      <i class="fas fa-lock"></i>
+      <input type="password" name="password" [(ngModel)]="newPassword" placeholder="new password" required />
+    </div>
+    <div  class="input-field">
+      <i class="fas fa-lock"></i>
+      <input type="password" name="password" [(ngModel)]="confirmPassword" placeholder=" rewrite new password" required />
+    </div>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <button (click)="modifyPassword()" class="btn transparent">
+      reset
+    </button>
+  </div>
+  <!-- sign up  -->
+  <div *ngIf="showSignupDiv">
+    <h2 class="title">&nbsp;&nbsp;sign up</h2>
+    <br>
+    <div  class="input-field">
+      <i class="fas fa-lock"></i>
+      <input type="email" id="email" [(ngModel)]="email_sign_up" name="email" placeholder=" email" required>
+    </div>
+    <div  class="input-field">
+      <i class="fas fa-lock"></i>
+      <input type="password" [(ngModel)]="password_sign_up" placeholder=" password" required>
+    </div>
+    <div  class="input-field">
+      <i class="fas fa-lock"></i>
+      <input type="password" [(ngModel)]="confirmPassword_sign_up" placeholder=" confirmPassword" required>
+    </div>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <button (click)="register()" class="btn transparent">
+      sign up
+    </button>
+  </div>
+
+</div>
+</div>
+
