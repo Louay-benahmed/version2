@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {Router, RouterModule} from '@angular/router';
 import {CreateSolutionDto, Solution, Supplier} from '../../models/supplier';
 import { SupplierService } from '../../supplier.service';
-import {CurrencyPipe} from '@angular/common';
 import { CommonModule } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
@@ -11,7 +10,6 @@ import {FormsModule} from '@angular/forms';
   standalone: true,
   templateUrl: './solution.component.html',
   imports: [
-    CurrencyPipe,
     CommonModule,
     RouterModule,
     FormsModule

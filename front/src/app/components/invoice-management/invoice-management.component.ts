@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {NgIf, NgOptimizedImage, CommonModule} from '@angular/common';
+import {NgIf, CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 
 import { SupplierService } from '../../supplier.service';
@@ -13,7 +13,6 @@ Chart.register(...registerables);
   standalone: true,
   imports: [
     NgIf,
-    NgOptimizedImage,
     FormsModule,
     CommonModule
   ],

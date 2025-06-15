@@ -45,27 +45,24 @@
         </thead>
         <tbody>
         <!-- Loop through 6 rows, filling with data or keeping empty -->
-        <tr *ngFor="let row of getDisplayRows(); let i = index">
-          <td>{{ suppliers[i]?.id || '-' }}</td>
-          <td>{{ suppliers[i]?.name || '' }}</td>
-          <td>{{ suppliers[i]?.email || '' }}</td>
+        <tr *ngFor="let row of getDisplayRows()">
+          <td>{{ row.id || '-' }}</td>
+          <td>{{ row.name || '' }}</td>
+          <td>{{ row.email || '' }}</td>
           <td>
-            <button *ngIf="suppliers[i]" class="btn btn-danger btn-sm" (click)="viewDetails(suppliers[i].id)">
+            <button *ngIf="row.id" class="btn btn-danger btn-sm" (click)="viewDetails(row.id)">
               <i class="fas fa-info-circle"></i> Données
             </button>
-            <span *ngIf="!suppliers[i]"></span>
           </td>
           <td>
-            <button *ngIf="suppliers[i]" class="btn btn-danger btn-sm" (click)="viewClients(suppliers[i].id)">
+            <button *ngIf="row.id" class="btn btn-danger btn-sm" (click)="viewClients(row.id)">
               <i class="fas fa-folder-open"></i> Liste des grossistes
             </button>
-            <span *ngIf="!suppliers[i]"></span>
           </td>
           <td>
-            <button *ngIf="suppliers[i]" class="btn btn-danger btn-sm" (click)="generateInvoice(suppliers[i].id)">
+            <button *ngIf="row.id" class="btn btn-danger btn-sm" (click)="generateInvoice(row.id)">
               <i class="fas fa-file-invoice"></i> Facturation client
             </button>
-            <span *ngIf="!suppliers[i]"></span>
           </td>
         </tr>
         </tbody>

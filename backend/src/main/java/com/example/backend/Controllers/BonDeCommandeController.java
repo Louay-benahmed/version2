@@ -93,4 +93,16 @@ public class BonDeCommandeController {
                     .body("Failed to delete bon de commande: " + e.getMessage());
         }
     }
+
+    @GetMapping("/client/{clientName}/paid")
+    public ResponseEntity<List<BonDeCommande>> getPaidBonDeCommandesByClient(@PathVariable String clientName) {
+        List<BonDeCommande> commandes = bonDeCommandeService.getPaidBonDeCommandesByClientName(clientName);
+        return ResponseEntity.ok(commandes);
+    }
+
+    @GetMapping("/client/{clientName}/unpaid")
+    public ResponseEntity<List<BonDeCommande>> getUnpaidBonDeCommandesByClient(@PathVariable String clientName) {
+        List<BonDeCommande> commandes = bonDeCommandeService.getUnpaidBonDeCommandesByClientName(clientName);
+        return ResponseEntity.ok(commandes);
+    }
 }

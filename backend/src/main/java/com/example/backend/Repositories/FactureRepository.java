@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FactureRepository extends JpaRepository<Facture, Integer> {
@@ -21,4 +22,10 @@ public interface FactureRepository extends JpaRepository<Facture, Integer> {
 
     @Query("SELECT f FROM Facture f LEFT JOIN FETCH f.supplier WHERE f.payment = false")
     List<Facture> findUnpaidWithSupplier();
+
+    @Query("SELECT f FROM Facture f LEFT JOIN FETCH f.supplier WHERE f.payment = true AND f.supplier.id = :supplierId")
+    List<Facture> findPaidBySupplierId(Integer supplierId);
+
+    @Query("SELECT f FROM Facture f LEFT JOIN FETCH f.supplier WHERE f.payment = false AND f.supplier.id = :supplierId")
+    List<Facture> findUnpaidBySupplierId(Integer supplierId);
 }

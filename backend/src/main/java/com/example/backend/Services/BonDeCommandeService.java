@@ -35,4 +35,12 @@ public class BonDeCommandeService {
                 .orElseThrow(() -> new RuntimeException("Bon de commande not found"));
         bonDeCommandeRepository.delete(commande);
     }
+
+    public List<BonDeCommande> getPaidBonDeCommandesByClientName(String clientName) {
+        return bonDeCommandeRepository.findPaidByClientName(clientName);
+    }
+
+    public List<BonDeCommande> getUnpaidBonDeCommandesByClientName(String clientName) {
+        return bonDeCommandeRepository.findUnpaidByClientName(clientName);
+    }
 }

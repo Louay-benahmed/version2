@@ -95,4 +95,16 @@ public class FactureController {
         }
     }
 
+    @GetMapping("/supplier/{supplierId}/paid")
+    public ResponseEntity<List<Facture>> getPaidFacturesBySupplier(@PathVariable Integer supplierId) {
+        List<Facture> factures = factureService.getPaidFacturesBySupplierId(supplierId);
+        return ResponseEntity.ok(factures);
+    }
+
+    @GetMapping("/supplier/{supplierId}/unpaid")
+    public ResponseEntity<List<Facture>> getUnpaidFacturesBySupplier(@PathVariable Integer supplierId) {
+        List<Facture> factures = factureService.getUnpaidFacturesBySupplierId(supplierId);
+        return ResponseEntity.ok(factures);
+    }
+
 }

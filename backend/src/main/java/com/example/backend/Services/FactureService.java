@@ -35,4 +35,12 @@ public class FactureService {
                 .orElseThrow(() -> new RuntimeException("Facture not found"));
         factureRepository.delete(facture);
     }
+
+    public List<Facture> getPaidFacturesBySupplierId(Integer supplierId) {
+        return factureRepository.findPaidBySupplierId(supplierId);
+    }
+
+    public List<Facture> getUnpaidFacturesBySupplierId(Integer supplierId) {
+        return factureRepository.findUnpaidBySupplierId(supplierId);
+    }
 }

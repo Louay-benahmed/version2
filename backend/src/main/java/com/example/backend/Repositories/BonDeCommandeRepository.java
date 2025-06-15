@@ -28,4 +28,10 @@ public interface BonDeCommandeRepository extends JpaRepository<BonDeCommande, In
 
     @Query("SELECT b FROM BonDeCommande b LEFT JOIN FETCH b.client WHERE b.payment = false")
     List<BonDeCommande> findUnpaidWithClient();
+
+    @Query("SELECT b FROM BonDeCommande b LEFT JOIN FETCH b.client WHERE b.payment = true AND b.client.name = :clientName")
+    List<BonDeCommande> findPaidByClientName(@Param("clientName") String clientName);
+
+    @Query("SELECT b FROM BonDeCommande b LEFT JOIN FETCH b.client WHERE b.payment = false AND b.client.name = :clientName")
+    List<BonDeCommande> findUnpaidByClientName(@Param("clientName") String clientName);
 }

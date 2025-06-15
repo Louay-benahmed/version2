@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import { NgIf, NgOptimizedImage } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { SupplierService } from '../../supplier.service';
@@ -14,7 +14,6 @@ import {FormsModule} from '@angular/forms';
   imports: [
     FormsModule,
     NgIf,
-    NgOptimizedImage,
     HttpClientModule,
     CommonModule
   ],
@@ -687,8 +686,13 @@ export class HomePageComponent implements OnInit {
         });
     }
   }
-  getDisplayRows() {
-    // Always return an array of length 6
-    return new Array(6).fill(0);
+  // In your component class
+  getDisplayRows(): any[] {
+    // Create array with actual suppliers + empty objects to reach 6 items
+    return [
+      ...this.suppliers,
+      ...Array(Math.max(0, 6 - this.suppliers.length)).fill({})
+    ];
   }
+
 }
