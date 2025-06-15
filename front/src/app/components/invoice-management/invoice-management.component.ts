@@ -6,6 +6,7 @@ import { SupplierService } from '../../supplier.service';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 import { Chart, registerables } from 'chart.js';
+import {FormsModule} from '@angular/forms';
 Chart.register(...registerables);
 @Component({
   selector: 'app-invoice-management',
@@ -13,6 +14,7 @@ Chart.register(...registerables);
   imports: [
     NgIf,
     NgOptimizedImage,
+    FormsModule,
     CommonModule
   ],
   templateUrl: './invoice-management.component.html',
@@ -33,6 +35,13 @@ export class InvoiceManagementComponent  implements OnInit {
   updatingBonDeCommandePayment: {[key: number]: boolean} = {};
   deletingFacture: {[key: number]: boolean} = {};
   deletingBonDeCommande: {[key: number]: boolean} = {};
+  // Add these properties to your component
+  selectedYear: number = new Date().getFullYear();
+  availableYears: number[] = [];
+  originalPaidFactures: any[] = [];
+  originalUnpaidFactures: any[] = [];
+  originalPaidBonDeCommandes: any[] = [];
+  originalUnpaidBonDeCommandes: any[] = [];
 
 
 
@@ -45,26 +54,135 @@ export class InvoiceManagementComponent  implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initializeAvailableYears();
     this.loadFactures();
     this.loadBonDeCommandes();
 
   }
 
+  initializeAvailableYears(): void {
+    const currentYear = new Date().getFullYear();
+    this.availableYears = Array.from(
+      { length: currentYear },
+      (_, index) => currentYear - index
+    );
+    this.selectedYear = currentYear;
+  }
+
+  logDocumentDates(): void {
+    console.group('Document Date Verification');
+
+    console.log('=== Paid Factures ===');
+    this.originalPaidFactures.forEach(f => {
+      const date = new Date(f.dateCreation);
+      console.log(`ID: ${f.facture_id}`, {
+        rawDate: f.dateCreation,
+        parsedDate: date,
+        year: date.getUTCFullYear(),
+        month: date.getUTCMonth() + 1,
+        day: date.getUTCDate()
+      });
+    });
+
+    console.log('=== Unpaid Factures ===');
+    this.originalUnpaidFactures.forEach(f => {
+      const date = new Date(f.dateCreation);
+      console.log(`ID: ${f.facture_id}`, {
+        rawDate: f.dateCreation,
+        parsedDate: date,
+        year: date.getUTCFullYear()
+      });
+    });
+
+    console.log('=== Paid BonDeCommandes ===');
+    this.originalPaidBonDeCommandes.forEach(b => {
+      const date = new Date(b.dateCreation);
+      console.log(`ID: ${b.id}`, {
+        rawDate: b.dateCreation,
+        parsedDate: date,
+        year: date.getUTCFullYear()
+      });
+    });
+
+    console.log('=== Unpaid BonDeCommandes ===');
+    this.originalUnpaidBonDeCommandes.forEach(b => {
+      const date = new Date(b.dateCreation);
+      console.log(`ID: ${b.id}`, {
+        rawDate: b.dateCreation,
+        parsedDate: date,
+        year: date.getUTCFullYear()
+      });
+    });
+
+    console.groupEnd();
+  }
+  // Modify your load methods to store original data
   loadFactures(): void {
     this.supplierService.getAllFactures().subscribe({
       next: (factures) => {
-        this.paidFactures = factures.filter((f: any) => f.payment);
-        this.unpaidFactures = factures.filter((f: any) => !f.payment);
+        this.originalPaidFactures = factures.filter((f: any) => f.payment);
+        this.originalUnpaidFactures = factures.filter((f: any) => !f.payment);
+        this.logDocumentDates(); // <-- Add this
+
+        this.filterByYear();
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des factures:', err);
+        console.error('Error loading factures:', err);
         this.isLoading = false;
       }
     });
   }
 
+  loadBonDeCommandes(): void {
+    this.supplierService.getAllBonDeCommandes().subscribe({
+      next: (commandes) => {
+        this.originalPaidBonDeCommandes = commandes.filter((c: any) => c.payment);
+        this.originalUnpaidBonDeCommandes = commandes.filter((c: any) => !c.payment);
+        this.filterByYear();
+      },
+      error: (err) => {
+        console.error('Error loading bon de commandes:', err);
+      }
+    });
+  }
 
+// Add these new methods for year filtering
+// In reporting-page.component.ts
+  filterByYear(): void {
+    if (!this.selectedYear) return;
+
+    const targetYear = Number(this.selectedYear);
+    console.log(`Filtering for year: ${targetYear}`);
+
+    // Improved date filtering that handles timezones
+    const filterByYear = (items: any[]): any[] => {
+      return items.filter(item => {
+        if (!item.dateCreation) return false;
+
+        // Handle both string and Date objects
+        const date = new Date(item.dateCreation);
+        return date.getUTCFullYear() === targetYear; // Use UTC to avoid timezone issues
+      });
+    };
+
+    this.paidFactures = filterByYear(this.originalPaidFactures);
+    this.unpaidFactures = filterByYear(this.originalUnpaidFactures);
+    this.paidBonDeCommandes = filterByYear(this.originalPaidBonDeCommandes);
+    this.unpaidBonDeCommandes = filterByYear(this.originalUnpaidBonDeCommandes);
+
+    console.log('Filtered counts:', {
+      paidFactures: this.paidFactures.length,
+      unpaidFactures: this.unpaidFactures.length,
+      paidBonDeCommandes: this.paidBonDeCommandes.length,
+      unpaidBonDeCommandes: this.unpaidBonDeCommandes.length
+    });
+
+  }
+  resetYearFilter(): void {
+    this.selectedYear = new Date().getFullYear(); // Reset to current year
+    this.filterByYear();
+  }
 
 
   goToPage(): void {
@@ -117,17 +235,7 @@ export class InvoiceManagementComponent  implements OnInit {
       }
     });
   }
-  loadBonDeCommandes(): void {
-    this.supplierService.getAllBonDeCommandes().subscribe({
-      next: (commandes) => {
-        this.paidBonDeCommandes = commandes.filter((c: any) => c.payment);
-        this.unpaidBonDeCommandes = commandes.filter((c: any) => !c.payment);
-      },
-      error: (err) => {
-        console.error('Error loading bon de commandes:', err);
-      }
-    });
-  }
+
 
   sendBonDeCommandeByEmail(document: string, email: string | undefined, commandeId: number) {
     if (!email) {

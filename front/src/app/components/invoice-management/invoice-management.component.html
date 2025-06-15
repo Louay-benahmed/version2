@@ -33,6 +33,22 @@
         <button (click)="goToReporting()" class="btn btn-success" style="height: 40px;">
           <i class="fas fa-chart-bar"></i> &nbsp;&nbsp;Dashboard
         </button>
+        <div class="year-filter-container" style="margin-bottom: 20px;">
+          <div class="row">
+            <div class="col-md-5">
+              <select id="selectedYear" class="form-control"
+                      [(ngModel)]="selectedYear" (change)="filterByYear()">
+                <option *ngFor="let year of availableYears" [value]="year">{{year}}</option>
+              </select>
+            </div>
+            <div class="col-md-2" style="display: flex; align-items: flex-end;">
+              <button class="btn btn-secondary" (click)="resetYearFilter()">
+                <i class="fas fa-redo"></i> &nbsp;&nbsp;Année actuelle
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
     <br>
@@ -73,7 +89,7 @@
                             class="btn btn-sm btn-primary"
                             data-bs-toggle="modal"
                             data-bs-target="#pdfModal"
-                            title="View PDF">
+                            title="Afficher le PDF">
                       <i class="fas fa-file-pdf"></i>
                     </button>
 
@@ -81,7 +97,7 @@
                     <button (click)="sendFactureByEmail(facture.document, facture.supplier?.email, facture.facture_id)"
                             class="btn btn-sm btn-success"
                             [disabled]="!facture.supplier?.email"
-                            title="Send Email">
+                            title="Envoyer un e-mail">
                       <i *ngIf="!sendingEmails[facture.facture_id]" class="fas fa-paper-plane"></i>
                       <i *ngIf="sendingEmails[facture.facture_id]" class="fas fa-spinner fa-spin"></i>
                     </button>
@@ -91,7 +107,7 @@
                             class="btn btn-sm"
                             [ngClass]="facture.payment ? 'btn-danger' : 'btn-success'"
                             [disabled]="updatingPayment[facture.facture_id]"
-                            [title]="facture.payment ? 'Mark Unpaid' : 'Mark Paid'">
+                            [title]="facture.payment ? 'Marquer comme impayé' : 'Marquer comme payé'">
                       <i *ngIf="!updatingPayment[facture.facture_id]"
                          class="fas"
                          [class.fa-times-circle]="facture.payment"
@@ -103,7 +119,7 @@
                     <button (click)="deleteFacture(facture.facture_id)"
                             class="btn btn-sm btn-danger"
                             [disabled]="deletingFacture[facture.facture_id]"
-                            title="Delete">
+                            title="Supprimer">
                       <i *ngIf="!deletingFacture[facture.facture_id]" class="fas fa-trash-alt"></i>
                       <i *ngIf="deletingFacture[facture.facture_id]" class="fas fa-spinner fa-spin"></i>
                     </button>
@@ -147,7 +163,7 @@
                             class="btn btn-sm btn-primary"
                             data-bs-toggle="modal"
                             data-bs-target="#pdfModal"
-                            title="View PDF">
+                            title="Afficher le PDF">
                       <i class="fas fa-file-pdf"></i>
                     </button>
 
@@ -155,7 +171,7 @@
                     <button (click)="sendFactureByEmail(facture.document, facture.supplier?.email, facture.facture_id)"
                             class="btn btn-sm btn-success"
                             [disabled]="!facture.supplier?.email"
-                            title="Send Email">
+                            title="Envoyer un e-mail">
                       <i *ngIf="!sendingEmails[facture.facture_id]" class="fas fa-paper-plane"></i>
                       <i *ngIf="sendingEmails[facture.facture_id]" class="fas fa-spinner fa-spin"></i>
                     </button>
@@ -165,7 +181,7 @@
                             class="btn btn-sm"
                             [ngClass]="facture.payment ? 'btn-danger' : 'btn-success'"
                             [disabled]="updatingPayment[facture.facture_id]"
-                            [title]="facture.payment ? 'Mark Unpaid' : 'Mark Paid'">
+                            [title]="facture.payment ? 'Marquer comme impayé' : 'Marquer comme payé'">
                       <i *ngIf="!updatingPayment[facture.facture_id]"
                          class="fas"
                          [class.fa-times-circle]="facture.payment"
@@ -177,7 +193,7 @@
                     <button (click)="deleteFacture(facture.facture_id)"
                             class="btn btn-sm btn-danger"
                             [disabled]="deletingFacture[facture.facture_id]"
-                            title="Delete">
+                            title="Supprimer">
                       <i *ngIf="!deletingFacture[facture.facture_id]" class="fas fa-trash-alt"></i>
                       <i *ngIf="deletingFacture[facture.facture_id]" class="fas fa-spinner fa-spin"></i>
                     </button>
@@ -229,7 +245,7 @@
                             class="btn btn-sm btn-primary"
                             data-bs-toggle="modal"
                             data-bs-target="#pdfModal"
-                            title="View PDF">
+                            title="Afficher le PDF">
                       <i class="fas fa-file-pdf"></i>
                     </button>
 
@@ -237,7 +253,7 @@
                     <button (click)="sendBonDeCommandeByEmail(commande.document, commande.client?.email, commande.id)"
                             class="btn btn-sm btn-success"
                             [disabled]="!commande.client?.email"
-                            title="Send Email">
+                            title="Envoyer un e-mail">
                       <i *ngIf="!sendingBonDeCommandeEmails[commande.id]" class="fas fa-paper-plane"></i>
                       <i *ngIf="sendingBonDeCommandeEmails[commande.id]" class="fas fa-spinner fa-spin"></i>
                     </button>
@@ -247,7 +263,7 @@
                             class="btn btn-sm"
                             [ngClass]="commande.payment ? 'btn-danger' : 'btn-success'"
                             [disabled]="updatingBonDeCommandePayment[commande.id]"
-                            [title]="commande.payment ? 'Mark Unpaid' : 'Mark Paid'">
+                            [title]="commande.payment ? 'Marquer comme impayé' : 'Marquer comme payé'">
                       <i *ngIf="!updatingBonDeCommandePayment[commande.id]"
                          class="fas"
                          [class.fa-times-circle]="commande.payment"
@@ -259,7 +275,7 @@
                     <button (click)="deleteBonDeCommande(commande.id)"
                             class="btn btn-sm btn-danger"
                             [disabled]="deletingBonDeCommande[commande.id]"
-                            title="Delete">
+                            title="Supprimer">
                       <i *ngIf="!deletingBonDeCommande[commande.id]" class="fas fa-trash-alt"></i>
                       <i *ngIf="deletingBonDeCommande[commande.id]" class="fas fa-spinner fa-spin"></i>
                     </button>
@@ -303,7 +319,7 @@
                             class="btn btn-sm btn-primary"
                             data-bs-toggle="modal"
                             data-bs-target="#pdfModal"
-                            title="View PDF">
+                            title="Afficher le PDF">
                       <i class="fas fa-file-pdf"></i>
                     </button>
 
@@ -311,7 +327,7 @@
                     <button (click)="sendBonDeCommandeByEmail(commande.document, commande.client?.email, commande.id)"
                             class="btn btn-sm btn-success"
                             [disabled]="!commande.client?.email"
-                            title="Send Email">
+                            title="Envoyer un e-mail">
                       <i *ngIf="!sendingBonDeCommandeEmails[commande.id]" class="fas fa-paper-plane"></i>
                       <i *ngIf="sendingBonDeCommandeEmails[commande.id]" class="fas fa-spinner fa-spin"></i>
                     </button>
@@ -321,7 +337,7 @@
                             class="btn btn-sm"
                             [ngClass]="commande.payment ? 'btn-danger' : 'btn-success'"
                             [disabled]="updatingBonDeCommandePayment[commande.id]"
-                            [title]="commande.payment ? 'Mark Unpaid' : 'Mark Paid'">
+                            [title]="commande.payment ? 'Marquer comme impayé' : 'Marquer comme payé'">
                       <i *ngIf="!updatingBonDeCommandePayment[commande.id]"
                          class="fas"
                          [class.fa-times-circle]="commande.payment"
@@ -333,7 +349,7 @@
                     <button (click)="deleteBonDeCommande(commande.id)"
                             class="btn btn-sm btn-danger"
                             [disabled]="deletingBonDeCommande[commande.id]"
-                            title="Delete">
+                            title="Supprimer">
                       <i *ngIf="!deletingBonDeCommande[commande.id]" class="fas fa-trash-alt"></i>
                       <i *ngIf="deletingBonDeCommande[commande.id]" class="fas fa-spinner fa-spin"></i>
                     </button>

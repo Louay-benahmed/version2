@@ -25,14 +25,34 @@
 
 <main class="app-container">
   <section class="dashboard-section">
-    <div style="display: flex; gap: 10px;">
+    <div class="button-container">
+      <div class="d-flex gap-2 mb-3">
       <button (click)="goToPage()" class="btn btn-primary" style="height: 40px;">
         <i class="fas fa-home"></i> &nbsp;&nbsp;Accueil
       </button>
       <button (click)="goToPageManagement()" class="btn btn-success" style="height: 40px;">
         <i class="fas fa-tasks"></i> &nbsp;&nbsp;Gestion
       </button>
+      <div class="year-filter-container" style="margin-bottom: 20px;">
+
+        <div class="row">
+          <div class="col-md-5">
+            <select id="selectedYear" class="form-control"
+                    [(ngModel)]="selectedYear" (change)="filterByYear()">
+              <option *ngFor="let year of availableYears" [value]="year">{{year}}</option>
+            </select>
+          </div>
+          <div class="col-md-2" style="display: flex; align-items: flex-end;">
+            <button class="btn btn-secondary" (click)="resetYearFilter()">
+              <i class="fas fa-redo"></i> &nbsp;&nbsp;Année actuelle
+            </button>
+          </div>
+
+        </div>
+      </div>
+      </div>
     </div>
+
 
     <br>
     <h2 class="section-title">

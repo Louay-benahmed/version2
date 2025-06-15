@@ -383,3 +383,20 @@ body {
   text-overflow: ellipsis; /* Show ellipsis for overflow text */
 }
 
+.button-container {
+  margin-top: 1rem;
+}
+
+.year-filter-container {
+  border: 7px solid #dee2e6;
+  padding: 1rem;
+  min-width: 300px; /* Prevents squeezing */
+  margin-left: auto; /* Pushes to right */
+  border-radius: 12px;
+
+}
+
+.form-label {
+  font-weight: 550;
+  color: #495057;
+}

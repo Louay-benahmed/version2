@@ -6,6 +6,7 @@ import { SupplierService } from '../../supplier.service';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 import { Chart, registerables } from 'chart.js';
+import {FormsModule} from '@angular/forms';
 Chart.register(...registerables);
 
 @Component({
@@ -14,6 +15,7 @@ Chart.register(...registerables);
   imports: [
     NgIf,
     NgOptimizedImage,
+    FormsModule,
     CommonModule
   ],
   templateUrl: './reporting-page.component.html',
@@ -40,6 +42,15 @@ export class ReportingPageComponent implements OnInit {
   private donutChart: Chart | null = null;
 
 
+  // Add these properties to your component class
+  selectedYear: number = new Date().getFullYear();
+  availableYears: number[] = [];
+  originalPaidFactures: any[] = [];
+  originalUnpaidFactures: any[] = [];
+  originalPaidBonDeCommandes: any[] = [];
+  originalUnpaidBonDeCommandes: any[] = [];
+
+
 
 
 
@@ -50,27 +61,139 @@ export class ReportingPageComponent implements OnInit {
   ) {
   }
 
+  // Modify your ngOnInit to initialize years
   ngOnInit(): void {
+    this.initializeAvailableYears();
     this.loadFactures();
     this.loadBonDeCommandes();
-
   }
 
+  initializeAvailableYears(): void {
+    const currentYear = new Date().getFullYear();
+    this.availableYears = Array.from(
+      { length: currentYear },
+      (_, index) => currentYear - index
+    );
+    this.selectedYear = currentYear;
+  }
+
+// Add this method to your component
+// Update your logDocumentDates method
+  logDocumentDates(): void {
+    console.group('Document Date Verification');
+
+    console.log('=== Paid Factures ===');
+    this.originalPaidFactures.forEach(f => {
+      const date = new Date(f.dateCreation);
+      console.log(`ID: ${f.facture_id}`, {
+        rawDate: f.dateCreation,
+        parsedDate: date,
+        year: date.getUTCFullYear(),
+        month: date.getUTCMonth() + 1,
+        day: date.getUTCDate()
+      });
+    });
+
+    console.log('=== Unpaid Factures ===');
+    this.originalUnpaidFactures.forEach(f => {
+      const date = new Date(f.dateCreation);
+      console.log(`ID: ${f.facture_id}`, {
+        rawDate: f.dateCreation,
+        parsedDate: date,
+        year: date.getUTCFullYear()
+      });
+    });
+
+    console.log('=== Paid BonDeCommandes ===');
+    this.originalPaidBonDeCommandes.forEach(b => {
+      const date = new Date(b.dateCreation);
+      console.log(`ID: ${b.id}`, {
+        rawDate: b.dateCreation,
+        parsedDate: date,
+        year: date.getUTCFullYear()
+      });
+    });
+
+    console.log('=== Unpaid BonDeCommandes ===');
+    this.originalUnpaidBonDeCommandes.forEach(b => {
+      const date = new Date(b.dateCreation);
+      console.log(`ID: ${b.id}`, {
+        rawDate: b.dateCreation,
+        parsedDate: date,
+        year: date.getUTCFullYear()
+      });
+    });
+
+    console.groupEnd();
+  }
+  // Modify your load methods to store original data
   loadFactures(): void {
     this.supplierService.getAllFactures().subscribe({
       next: (factures) => {
-        this.paidFactures = factures.filter((f: any) => f.payment);
-        this.unpaidFactures = factures.filter((f: any) => !f.payment);
-        this.isLoading = false;
-        this.createPaymentChart();
-        this.createDonutChart();
+        this.originalPaidFactures = factures.filter((f: any) => f.payment);
+        this.originalUnpaidFactures = factures.filter((f: any) => !f.payment);
+        this.logDocumentDates(); // <-- Add this
 
+        this.filterByYear();
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Error loading factures:', err);
         this.isLoading = false;
       }
     });
+  }
+
+  loadBonDeCommandes(): void {
+    this.supplierService.getAllBonDeCommandes().subscribe({
+      next: (commandes) => {
+        this.originalPaidBonDeCommandes = commandes.filter((c: any) => c.payment);
+        this.originalUnpaidBonDeCommandes = commandes.filter((c: any) => !c.payment);
+        this.filterByYear();
+      },
+      error: (err) => {
+        console.error('Error loading bon de commandes:', err);
+      }
+    });
+  }
+
+// Add these new methods for year filtering
+// In reporting-page.component.ts
+  filterByYear(): void {
+    if (!this.selectedYear) return;
+
+    const targetYear = Number(this.selectedYear);
+    console.log(`Filtering for year: ${targetYear}`);
+
+    // Improved date filtering that handles timezones
+    const filterByYear = (items: any[]): any[] => {
+      return items.filter(item => {
+        if (!item.dateCreation) return false;
+
+        // Handle both string and Date objects
+        const date = new Date(item.dateCreation);
+        return date.getUTCFullYear() === targetYear; // Use UTC to avoid timezone issues
+      });
+    };
+
+    this.paidFactures = filterByYear(this.originalPaidFactures);
+    this.unpaidFactures = filterByYear(this.originalUnpaidFactures);
+    this.paidBonDeCommandes = filterByYear(this.originalPaidBonDeCommandes);
+    this.unpaidBonDeCommandes = filterByYear(this.originalUnpaidBonDeCommandes);
+
+    console.log('Filtered counts:', {
+      paidFactures: this.paidFactures.length,
+      unpaidFactures: this.unpaidFactures.length,
+      paidBonDeCommandes: this.paidBonDeCommandes.length,
+      unpaidBonDeCommandes: this.unpaidBonDeCommandes.length
+    });
+
+    this.createPaymentChart(true);
+    this.createDonutChart(true);
+  }
+  resetYearFilter(): void {
+    this.selectedYear = new Date().getFullYear(); // Reset to current year
+    this.filterByYear();
   }
 
 
@@ -82,31 +205,17 @@ export class ReportingPageComponent implements OnInit {
   }
 
 
-  loadBonDeCommandes(): void {
-    this.supplierService.getAllBonDeCommandes().subscribe({
-      next: (commandes) => {
-        this.paidBonDeCommandes = commandes.filter((c: any) => c.payment);
-        this.unpaidBonDeCommandes = commandes.filter((c: any) => !c.payment);
-        this.createPaymentChart(); // Add this line
-        //this.createDonutChart(); // Add this
-        this.createDonutChart(); // Add this
 
 
-
-      },
-      error: (err) => {
-        console.error('Error loading bon de commandes:', err);
-      }
-    });
-  }
-
-  createPaymentChart(): void {
-    if (this.paymentChart) {
-      this.paymentChart.destroy();
-    }
-
+  // Modified to accept force recreation parameter
+  createPaymentChart(forceRecreate: boolean = false): void {
     const ctx = document.getElementById('paymentChart') as HTMLCanvasElement;
     if (!ctx) return;
+
+    // Destroy existing chart if it exists or if forced
+    if (this.paymentChart || forceRecreate) {
+      this.paymentChart?.destroy();
+    }
 
     this.paymentChart = new Chart(ctx, {
       type: 'bar',
@@ -130,44 +239,34 @@ export class ReportingPageComponent implements OnInit {
       options: {
         responsive: true,
         scales: {
-          x: {
-            stacked: true,
-          },
-          y: {
-            stacked: true,
-            beginAtZero: true
-          }
+          x: { stacked: true },
+          y: { stacked: true, beginAtZero: true }
         },
         plugins: {
           title: {
             display: true,
-            text: 'Aperçu du statut du paiement'
+            text: `Aperçu du statut du paiement - Année ${this.selectedYear}`
           },
           tooltip: {
             callbacks: {
               afterLabel: (context) => {
-                const dataset = context.dataset;
                 const dataIndex = context.dataIndex;
-                const label = context.label;
-
-                // Get the values for the current stack (Factures or Bons de commande)
                 let paid, unpaid;
 
-                if (dataIndex === 0) { // Factures
+                if (dataIndex === 0) {
                   paid = this.paidFactures.length;
                   unpaid = this.unpaidFactures.length;
-                } else { // Bons de commande
+                } else {
                   paid = this.paidBonDeCommandes.length;
                   unpaid = this.unpaidBonDeCommandes.length;
                 }
 
                 const total = paid + unpaid;
-                const value = dataset.data[dataIndex] as number;
-
-                // Calculate percentage for the current segment (paid or unpaid)
+                const value = context.dataset.data[dataIndex] as number;
                 const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                const label = context.label === 'Payé' ? 'payés' : 'non payés';
 
-                return `${percentage}% du total des ${label.toLowerCase()}`;
+                return `${percentage}% des ${context.dataset.label === 'Payé' ? 'documents payés' : 'documents non payés'}`;
               }
             }
           }
@@ -175,13 +274,16 @@ export class ReportingPageComponent implements OnInit {
       }
     });
   }
-  createDonutChart(): void {
-    if (this.donutChart) {
-      this.donutChart.destroy();
-    }
 
+  // Modified to accept force recreation parameter
+  createDonutChart(forceRecreate: boolean = false): void {
     const ctx = document.getElementById('donutChart') as HTMLCanvasElement;
     if (!ctx) return;
+
+    // Destroy existing chart if it exists or if forced
+    if (this.donutChart || forceRecreate) {
+      this.donutChart?.destroy();
+    }
 
     const totalPaid = this.paidFactures.length + this.paidBonDeCommandes.length;
     const totalUnpaid = this.unpaidFactures.length + this.unpaidBonDeCommandes.length;
@@ -201,36 +303,13 @@ export class ReportingPageComponent implements OnInit {
         responsive: true,
         maintainAspectRatio: false,
         cutout: '70%',
-        layout: {
-          padding: {
-            top: 10
-          }
-        },
         plugins: {
           title: {
             display: true,
-            text: 'Répartition du statut de paiement',
-            position: 'top',
-            font: {
-              size: 12
-            },
-            padding: {
-              bottom: 10
-            }
+            text: `Répartition du statut de paiement - Année ${this.selectedYear}`,
+            font: { size: 12 }
           },
-          legend: {
-            position: 'top',
-            align: 'center',
-            labels: {
-              boxWidth: 40,
-              padding: 10,
-              usePointStyle: false,
-              pointStyle: 'rect',
-              font: {
-                size: 12
-              }
-            }
-          },
+          legend: { position: 'top' },
           tooltip: {
             callbacks: {
               label: (context) => {
@@ -244,4 +323,5 @@ export class ReportingPageComponent implements OnInit {
         }
       }
     });
-  }}
+  }
+}

@@ -409,7 +409,11 @@ public class FileGenerationService {
         headerTable.addCell(documentCell);
 
         document.add(headerTable);
-        document.add(new Chunk(new LineSeparator(1f, 100f, BaseColor.LIGHT_GRAY, Element.ALIGN_CENTER, -1)));
+
+        // Add separator line
+        Paragraph separator = new Paragraph();
+        separator.add(new Chunk(new LineSeparator(1f, 100f, BaseColor.LIGHT_GRAY, Element.ALIGN_CENTER, -1)));
+        document.add(separator);
 
         // Client information
         PdfPTable clientTable = new PdfPTable(2);
