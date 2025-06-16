@@ -586,6 +586,7 @@ export class HomePageComponent implements OnInit {
         },
         (error) => {
           console.error('La génération PDF a échoué:', error);
+          alert('La génération PDF a échoué');
         }
       );
     } catch (error) {
