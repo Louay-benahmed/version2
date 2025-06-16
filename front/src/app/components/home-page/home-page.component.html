@@ -71,7 +71,7 @@
           <!-- Edit Supplier Section -->
           <div *ngIf="showInfoSupplierDiv" [class.disabled]="showSolutionDiv">
             <legend class="w-auto">Info(client)</legend>
-            <button type="button" class="close" aria-label="Close" (click)="toggleShowInfoSupplierDiv()">
+            <button type="button" class="close" aria-label="Close" (click)="toggleShowInfoSupplierDivclose()">
               <span aria-hidden="true">&times;</span>
             </button>
             <br><br>
@@ -314,7 +314,7 @@
                 <div *ngIf="showInfoClientInfoDiv">
                   <legend class="w-auto">Grossiste {{selectedClient?.name}} du client {{selectedSupplier?.name}}</legend>
                   <!-- Close Icon in the top-right corner -->
-                  <button type="button" class="close" aria-label="Close" (click)="toggleShowInfoClientrDiv()">
+                  <button type="button" class="close" aria-label="Close" (click)="toggleShowInfoClientrDivclose()">
                     <span aria-hidden="true">&times;</span> <!-- The cross icon -->
                   </button>
                   <br><br>
@@ -608,7 +608,7 @@
                           </div>
                         </div>
                         <!-- Update Button -->
-                        <div class="form-group mt-3 button-container">
+                        <div class="form-group mt-3 text-end">
                           <button class="btn btn-warning" (click)="updateExcelData()">
                             <i class="fas fa-edit"></i> Modifier
                           </button>

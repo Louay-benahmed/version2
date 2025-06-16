@@ -120,19 +120,22 @@ export class HomePageComponent implements OnInit {
     };
   }
 
-  fetchClientExcelData(): void {
+  async fetchClientExcelData(): Promise<void> {
+    // 1. First call the payment chart close function
+    this.showClientPaymentChartclose();
+
     if (!this.selectedClient?.id) return;
 
+    // 2. Wait for 2 seconds before proceeding with the Excel data fetch
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // 3. Then execute the original Excel data fetching logic
     this.supplierService.getClientExcelData(this.selectedClient.id).subscribe({
       next: (data) => {
         console.log('Received Excel data from API:', data);
-
-        // Create a new object with default values
         const mergedData = this.getEmptyExcelData();
 
-        // Only proceed if data is an object
         if (data && typeof data === 'object') {
-          // Only overwrite defaults with actual values from API (ignore null/undefined)
           Object.keys(data).forEach(key => {
             if (data[key] !== null && data[key] !== undefined) {
               mergedData[key] = data[key];
@@ -140,7 +143,6 @@ export class HomePageComponent implements OnInit {
           });
         }
 
-        // Assign the merged data (this triggers change detection)
         this.clientExcelData = mergedData;
         console.log('Merged Excel data:', this.clientExcelData);
 
@@ -194,26 +196,36 @@ export class HomePageComponent implements OnInit {
     this.router.navigate(['/management']);
   }
 
-  goToFacturePage() {
+  async goToFacturePage(): Promise<void> {
+    // First execute the payment chart function
+    this.showSupplierPaymentChartclose();
+
+    // Wait for 2 seconds before proceeding with navigation
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // Then execute the original navigation logic
     if (this.selectedSupplier && this.selectedSupplier.id) {
-      // Navigate to facture page with supplier ID as query parameter
       this.router.navigate(['/facture'], {
         queryParams: { supplierId: this.selectedSupplier.id }
       });
     } else {
-      // Navigate without filter if no supplier selected
       this.router.navigate(['/facture']);
     }
   }
 
-  goToBDCPage() {
+  async goToBDCPage(): Promise<void> {
+    // 1. First call the payment chart close function
+    this.showClientPaymentChartclose();
+
+    // 2. Wait for 2 seconds
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // 3. Then execute the navigation
     if (this.selectedClient && this.selectedClient.name) {
-      // Navigate to BDC page with client name as query parameter
       this.router.navigate(['/bdc'], {
         queryParams: { clientName: this.selectedClient.name }
       });
     } else {
-      // Navigate without filter if no client selected
       this.router.navigate(['/bdc']);
     }
   }
@@ -255,14 +267,43 @@ export class HomePageComponent implements OnInit {
       }
     );
   }
+
+  toggleShowInfoSupplierDiv(): void {
+    this.toggleInfoSupplierDiv(); // Calls another method (parent or service)
+    this.showInfoSupplierDiv = !this.showInfoSupplierDiv; // Toggles visibility flag
+  }
+
   toggleInfoSupplierDiv(): void {
     this.showSupplierDiv = !this.showSupplierDiv;
   }
-  toggleShowInfoSupplierDiv(): void {
+
+  async toggleShowInfoSupplierDivclose(): Promise<void> {
+    // First execute the payment chart function
+    this.showSupplierPaymentChartclose();
+
+    // Wait for 2 seconds before proceeding
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Then execute the original toggle functionality
     this.toggleInfoSupplierDiv();
     this.showInfoSupplierDiv = !this.showInfoSupplierDiv;
-
   }
+
+  showSupplierPaymentChartclose(): void {
+    // Toggle the visibility flag for the chart div
+    this.showSupplierPaymentChartDiv = false;
+
+    if (this.showSupplierPaymentChartDiv && this.selectedSupplier) {
+      // If showing the chart and a supplier is selected:
+      this.initializeAvailableYears(); // Load available years for data
+      this.supplierSelectedYear = new Date().getFullYear(); // Set default to current year
+      this.loadSupplierFactures(this.selectedSupplier.id); // Load invoices for selected supplier
+    } else {
+      // If hiding the chart:
+      this.destroySupplierPaymentChart(); // Clean up chart resources
+    }
+  }
+
   toggleShowAddSupplierDiv(): void {
     this.toggleInfoSupplierDiv();
     this.showAddSupplierDiv = !this.showAddSupplierDiv;
@@ -426,6 +467,18 @@ export class HomePageComponent implements OnInit {
 
   }
   toggleShowInfoClientrDiv(): void {
+    this.toggleInfoClientDiv();
+    this.showInfoClientInfoDiv = !this.showInfoClientInfoDiv;
+  }
+
+  async toggleShowInfoClientrDivclose(): Promise<void> {
+    // 1. First execute the payment chart close function immediately
+    this.showClientPaymentChartclose();
+
+    // 2. Wait for 2 seconds
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // 3. Then execute the original toggle functionality
     this.toggleInfoClientDiv();
     this.showInfoClientInfoDiv = !this.showInfoClientInfoDiv;
   }
@@ -872,6 +925,17 @@ export class HomePageComponent implements OnInit {
   // Add these methods
   showClientPaymentChart(): void {
     this.showClientPaymentChartDiv = !this.showClientPaymentChartDiv;
+
+    if (this.showClientPaymentChartDiv && this.selectedClient) {
+      this.initializeAvailableYears(); // Make sure this is called
+      this.clientSelectedYear = new Date().getFullYear();
+      this.loadClientBonDeCommandes(this.selectedClient.name);
+    } else {
+      this.destroyClientPaymentChart();
+    }
+  }
+  showClientPaymentChartclose(): void {
+    this.showClientPaymentChartDiv = false;
 
     if (this.showClientPaymentChartDiv && this.selectedClient) {
       this.initializeAvailableYears(); // Make sure this is called
