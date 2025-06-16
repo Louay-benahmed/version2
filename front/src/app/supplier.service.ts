@@ -346,4 +346,28 @@ export class SupplierService {
     const headers = this.getHeaders();
     return this.http.patch(`${this.apiUrlClient}/${clientId}/excel-data`, excelData, { headers });
   }
+
+// Get paid invoices by supplier ID
+  getPaidFacturesBySupplier(supplierId: number): Observable<any[]> {
+    const headers = this.getHeaders();
+    return this.http.get<any[]>(`${this.apiUrlfacture}/supplier/${supplierId}/paid`, { headers });
+  }
+
+// Get unpaid invoices by supplier ID
+  getUnpaidFacturesBySupplier(supplierId: number): Observable<any[]> {
+    const headers = this.getHeaders();
+    return this.http.get<any[]>(`${this.apiUrlfacture}/supplier/${supplierId}/unpaid`, { headers });
+  }
+
+  // Get paid purchase orders by client name
+  getPaidBonDeCommandesByClient(clientName: string): Observable<any[]> {
+    const headers = this.getHeaders();
+    return this.http.get<any[]>(`${this.apiUrlbdc}/client/${clientName}/paid`, { headers });
+  }
+
+// Get unpaid purchase orders by client name
+  getUnpaidBonDeCommandesByClient(clientName: string): Observable<any[]> {
+    const headers = this.getHeaders();
+    return this.http.get<any[]>(`${this.apiUrlbdc}/client/${clientName}/unpaid`, { headers });
+  }
 }

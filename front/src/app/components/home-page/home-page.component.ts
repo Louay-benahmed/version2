@@ -7,6 +7,7 @@ import {ClientExcelData, Solution, Supplier} from '../../models/supplier';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {Chart} from 'chart.js';
 
 @Component({
   selector: 'app-home-page',
@@ -45,6 +46,25 @@ export class HomePageComponent implements OnInit {
   };  clients: any[] = [];
   selectedClient: any = null;
   SelectedClient: any = { name: '', email: '', matricule_fiscale: '', adress: '', uniqueIdentifier: '' };
+  // Add these properties
+  showSupplierPaymentChartDiv = false;
+  private supplierPaymentChart: Chart | null = null;
+  paidFacturesForSupplier: any[] = [];
+  unpaidFacturesForSupplier: any[] = [];
+  // Add these properties
+  availableYears: number[] = [];
+  supplierSelectedYear: number = new Date().getFullYear();
+  originalPaidFacturesForSupplier: any[] = [];
+  originalUnpaidFacturesForSupplier: any[] = [];
+  // Add these properties
+  showClientPaymentChartDiv = false;
+  clientSelectedYear: number = new Date().getFullYear();
+  private clientPaymentChart: Chart | null = null;
+  paidBonDeCommandesForClient: any[] = [];
+  unpaidBonDeCommandesForClient: any[] = [];
+  originalPaidBonDeCommandesForClient: any[] = [];
+  originalUnpaidBonDeCommandesForClient: any[] = [];
+
 
 
 
@@ -379,6 +399,7 @@ export class HomePageComponent implements OnInit {
 
   toggleInfoClientDiv(): void {
     this.showClientInfoDiv = !this.showClientInfoDiv;
+
   }
   toggleShowInfoClientrDiv(): void {
     this.toggleInfoClientDiv();
@@ -694,5 +715,243 @@ export class HomePageComponent implements OnInit {
       ...Array(Math.max(0, 6 - this.suppliers.length)).fill({})
     ];
   }
+
+
+  // Add this method to show/hide the chart
+  showSupplierPaymentChart(): void {
+    this.showSupplierPaymentChartDiv = !this.showSupplierPaymentChartDiv;
+
+    if (this.showSupplierPaymentChartDiv && this.selectedSupplier) {
+      this.initializeAvailableYears(); // Initialize years
+      this.supplierSelectedYear = new Date().getFullYear(); // Set default to current year
+      this.loadSupplierFactures(this.selectedSupplier.id);
+    } else {
+      this.destroySupplierPaymentChart();
+    }
+  }
+
+// Add this method to load supplier factures
+  loadSupplierFactures(supplierId: number): void {
+    // Get paid factures
+    this.supplierService.getPaidFacturesBySupplier(supplierId).subscribe({
+      next: (factures) => {
+        this.originalPaidFacturesForSupplier = factures;
+
+        // Get unpaid factures
+        this.supplierService.getUnpaidFacturesBySupplier(supplierId).subscribe({
+          next: (unpaidFactures) => {
+            this.originalUnpaidFacturesForSupplier = unpaidFactures;
+            this.filterSupplierFacturesByYear(); // Apply year filter initially
+          },
+          error: (err) => console.error('Error loading unpaid factures:', err)
+        });
+      },
+      error: (err) => console.error('Error loading paid factures:', err)
+    });
+  }
+  // Add these new methods for year filtering
+  filterSupplierFacturesByYear(): void {
+    if (!this.supplierSelectedYear) return;
+
+    const targetYear = Number(this.supplierSelectedYear);
+
+    // Filter both paid and unpaid factures
+    this.paidFacturesForSupplier = this.originalPaidFacturesForSupplier.filter(f => {
+      if (!f.dateCreation) return false;
+      const date = new Date(f.dateCreation);
+      return date.getUTCFullYear() === targetYear;
+    });
+
+    this.unpaidFacturesForSupplier = this.originalUnpaidFacturesForSupplier.filter(f => {
+      if (!f.dateCreation) return false;
+      const date = new Date(f.dateCreation);
+      return date.getFullYear() === targetYear;
+    });
+
+    // Update the chart
+    this.createSupplierPaymentChart();
+  }
+
+  resetSupplierYearFilter(): void {
+    this.supplierSelectedYear = new Date().getFullYear();
+    this.filterSupplierFacturesByYear();
+  }
+
+// Add this method to create the chart
+  createSupplierPaymentChart(): void {
+    this.destroySupplierPaymentChart();
+
+    const ctx = document.getElementById('supplierPaymentChart') as HTMLCanvasElement;
+    if (!ctx) return;
+
+    this.supplierPaymentChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Payé', 'Non payé'],
+        datasets: [{
+          data: [
+            this.paidFacturesForSupplier.length,
+            this.unpaidFacturesForSupplier.length
+          ],
+          backgroundColor: ['#4CAF50', '#F44336'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: `Statut de paiement - ${this.supplierSelectedYear}`
+          },
+          legend: {
+            position: 'top',
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+                const value = context.raw as number;
+                const percentage = Math.round((value / total) * 100);
+                return `${context.label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+// Add this method to clean up the chart
+  destroySupplierPaymentChart(): void {
+    if (this.supplierPaymentChart) {
+      this.supplierPaymentChart.destroy();
+      this.supplierPaymentChart = null;
+    }
+  }
+  initializeAvailableYears(): void {
+    const currentYear = new Date().getFullYear();
+    this.availableYears = Array.from(
+      { length: 5 }, // Shows current year and previous 4 years
+      (_, index) => currentYear - index
+    );
+  }
+
+
+// Don't forget to clean up in ngOnDestroy
+  ngOnDestroy(): void {
+    this.destroySupplierPaymentChart();
+    // ... any other cleanup you have
+  }
+
+
+  // Add these methods
+  showClientPaymentChart(): void {
+    this.showClientPaymentChartDiv = !this.showClientPaymentChartDiv;
+
+    if (this.showClientPaymentChartDiv && this.selectedClient) {
+      this.initializeAvailableYears(); // Make sure this is called
+      this.clientSelectedYear = new Date().getFullYear();
+      this.loadClientBonDeCommandes(this.selectedClient.name);
+    } else {
+      this.destroyClientPaymentChart();
+    }
+  }
+
+  loadClientBonDeCommandes(clientName: string): void {
+    // Get paid bon de commandes
+    this.supplierService.getPaidBonDeCommandesByClient(clientName).subscribe({
+      next: (commandes) => {
+        this.originalPaidBonDeCommandesForClient = commandes;
+
+        // Get unpaid bon de commandes
+        this.supplierService.getUnpaidBonDeCommandesByClient(clientName).subscribe({
+          next: (unpaidCommandes) => {
+            this.originalUnpaidBonDeCommandesForClient = unpaidCommandes;
+            this.filterClientCommandesByYear();
+          },
+          error: (err) => console.error('Error loading unpaid bon de commandes:', err)
+        });
+      },
+      error: (err) => console.error('Error loading paid bon de commandes:', err)
+    });
+  }
+
+  filterClientCommandesByYear(): void {
+    if (!this.clientSelectedYear) return;
+
+    const targetYear = Number(this.clientSelectedYear);
+
+    this.paidBonDeCommandesForClient = this.originalPaidBonDeCommandesForClient.filter(c => {
+      if (!c.dateCreation) return false;
+      const date = new Date(c.dateCreation);
+      return date.getUTCFullYear() === targetYear;
+    });
+
+    this.unpaidBonDeCommandesForClient = this.originalUnpaidBonDeCommandesForClient.filter(c => {
+      if (!c.dateCreation) return false;
+      const date = new Date(c.dateCreation);
+      return date.getUTCFullYear() === targetYear;
+    });
+
+    this.createClientPaymentChart();
+  }
+
+  resetClientYearFilter(): void {
+    this.clientSelectedYear = new Date().getFullYear();
+    this.filterClientCommandesByYear();
+  }
+
+  createClientPaymentChart(): void {
+    this.destroyClientPaymentChart();
+
+    const ctx = document.getElementById('clientPaymentChart') as HTMLCanvasElement;
+    if (!ctx) return;
+
+    this.clientPaymentChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Payé', 'Non payé'],
+        datasets: [{
+          data: [
+            this.paidBonDeCommandesForClient.length,
+            this.unpaidBonDeCommandesForClient.length
+          ],
+          backgroundColor: ['#4CAF50', '#F44336'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: `Statut des bons de commande - ${this.clientSelectedYear}`
+          },
+          legend: {
+            position: 'top',
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+                const value = context.raw as number;
+                const percentage = Math.round((value / total) * 100);
+                return `${context.label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  destroyClientPaymentChart(): void {
+    if (this.clientPaymentChart) {
+      this.clientPaymentChart.destroy();
+      this.clientPaymentChart = null;
+    }
+  }
+
+
 
 }

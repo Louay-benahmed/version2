@@ -145,6 +145,10 @@
             </div>
 
             <div class="form-group mt-3 button-container">
+              <!-- Add this button with the other action buttons -->
+              <button class="btn btn-info" style="margin-left: 10px;" (click)="showSupplierPaymentChart()">
+                <i class="fas fa-chart-pie"></i> Voir statut de paiement
+              </button>
               <button class="btn btn-success" style="margin-left: 10px;" (click)="toggleSolutionnDiv()">
                 <i class="fas fa-plus-circle"></i> ajouter une solution
               </button>
@@ -154,6 +158,34 @@
               <button class="btn btn-danger" id="deleteButton" style="margin-left: 10px;" (click)="deleteSupplier()">
                 <i class="fas fa-trash-alt"></i> Supprimer
               </button>
+            </div>
+            <!-- Payment Status Chart -->
+            <div *ngIf="showSupplierPaymentChartDiv" class="mt-4">
+              <div class="button-container">
+
+              <!-- Add this year filter row -->
+              <div class="year-filter-container" style="margin-bottom: 20px;">
+
+              <div class="row">
+                <div class="col-md-5">
+                  <select id="supplierSelectedYear" class="form-control"
+                          [(ngModel)]="supplierSelectedYear" (change)="filterSupplierFacturesByYear()">
+                    <option *ngFor="let year of availableYears" [value]="year">{{year}}</option>
+                  </select>
+                </div>
+                <div class="col-md-2" style="display: flex; align-items: flex-end;">
+                  <button class="btn btn-secondary" (click)="resetSupplierYearFilter()">
+                    <i class="fas fa-redo"></i> &nbsp;&nbsp;Année actuelle
+                  </button>
+                </div>
+              </div>
+                </div>
+              </div>
+
+              <div class="chart-container" style="width: 100%; max-width: 500px; margin: 0 auto;">
+                <h5>Statut de paiement des factures - {{supplierSelectedYear}}</h5>
+                <canvas id="supplierPaymentChart"></canvas>
+              </div>
             </div>
           </div>
 
@@ -317,7 +349,10 @@
                   <!-- Buttons for Delete and Update -->
 
                   <div class="form-group mt-3 button-container">
-                    <button class="btn btn-info" (click)="fetchClientExcelData()">
+                    <button class="btn btn-info" (click)="showClientPaymentChart()">
+                      <i class="fas fa-chart-pie"></i> Voir statut de paiement
+                    </button>
+                    <button class="btn btn-success" (click)="fetchClientExcelData()">
                       <i class="fas fa-file-excel"></i> Details
                     </button>
                     <button class="btn btn-warning" (click)="updateClient()">
@@ -326,8 +361,33 @@
                     <button class="btn btn-danger" style="margin-left: 10px;" (click)="deleteClient()">
                       <i class="fas fa-trash-alt"></i> Supprimer
                     </button>
-                  </div>
 
+                  </div>
+                  <!-- Add this below the buttons section -->
+                  <div *ngIf="showClientPaymentChartDiv" class="mt-4">
+                    <div class="button-container">
+                      <div class="year-filter-container" style="margin-bottom: 20px;">
+
+                    <div class="row">
+                      <div class="col-md-5">
+                        <select id="clientSelectedYear" class="form-control"
+                                [(ngModel)]="clientSelectedYear" (change)="filterClientCommandesByYear()">
+                          <option *ngFor="let year of availableYears" [value]="year">{{year}}</option>
+                        </select>
+                      </div>
+                      <div class="col-md-2" style="display: flex; align-items: flex-end;">
+                        <button class="btn btn-secondary" (click)="resetClientYearFilter()">
+                          <i class="fas fa-redo"></i> &nbsp;&nbsp;Année actuelle
+                        </button>
+                      </div>
+                    </div>
+                      </div>
+                    </div>
+                    <div class="chart-container" style="width: 100%; max-width: 500px; margin: 0 auto;">
+                      <h5>Statut des bons de commande - {{clientSelectedYear}}</h5>
+                      <canvas id="clientPaymentChart"></canvas>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Excel Data Fieldset (Complete) -->
