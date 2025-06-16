@@ -194,6 +194,14 @@ export class HomePageComponent implements OnInit {
     this.router.navigate(['/management']);
   }
 
+  goToFacturePage() {
+    this.router.navigate(['/facture']);
+  }
+
+  goToBDCPage() {
+    this.router.navigate(['/bdc']);
+  }
+
   goTosolutionPage() {
     this.router.navigate(['/solution']);
   }

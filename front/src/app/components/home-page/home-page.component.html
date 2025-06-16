@@ -162,10 +162,8 @@
             <!-- Payment Status Chart -->
             <div *ngIf="showSupplierPaymentChartDiv" class="mt-4">
               <div class="button-container">
-
               <!-- Add this year filter row -->
               <div class="year-filter-container" style="margin-bottom: 20px;">
-
               <div class="row">
                 <div class="col-md-5">
                   <select id="supplierSelectedYear" class="form-control"
@@ -181,7 +179,9 @@
               </div>
                 </div>
               </div>
-
+              <button class="btn" style="margin-left: 10px; background-color: #EB5E28; color: white; border: none;" (click)="goToFacturePage()">
+                <i class="fas fa-tasks"></i> gestion
+              </button>
               <div class="chart-container" style="width: 100%; max-width: 500px; margin: 0 auto;">
                 <h5>Statut de paiement des factures - {{supplierSelectedYear}}</h5>
                 <canvas id="supplierPaymentChart"></canvas>
@@ -383,6 +383,9 @@
                     </div>
                       </div>
                     </div>
+                    <button class="btn" style="margin-left: 10px; background-color: #EB5E28; color: white; border: none;" (click)="goToBDCPage()">
+                      <i class="fas fa-tasks"></i> gestion
+                    </button>
                     <div class="chart-container" style="width: 100%; max-width: 500px; margin: 0 auto;">
                       <h5>Statut des bons de commande - {{clientSelectedYear}}</h5>
                       <canvas id="clientPaymentChart"></canvas>

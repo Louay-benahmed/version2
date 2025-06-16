@@ -5,6 +5,8 @@ import { LoginPageComponent } from './components/login-page/login-page.component
 import { ReportingPageComponent } from './components/reporting-page/reporting-page.component';
 import {SolutionComponent} from './components/solution/solution.component';
 import {InvoiceManagementComponent} from './components/invoice-management/invoice-management.component';
+import {FacturePageComponent} from './components/facture-page/facture-page.component';
+import {BdcPageComponent} from './components/bdc-page/bdc-page.component';
 
 export const routes: Routes = [
 
@@ -15,6 +17,8 @@ export const routes: Routes = [
   { path: 'home', component: HomePageComponent },
   { path: 'reporting', component: ReportingPageComponent },
   { path: 'management', component: InvoiceManagementComponent },
+  { path: 'facture', component: FacturePageComponent },
+  { path: 'bdc', component: BdcPageComponent },
 
   /*
       Access the New Page:
