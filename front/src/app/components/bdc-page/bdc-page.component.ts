@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
-import {Router} from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router'; // Update import
 import {SupplierService} from '../../supplier.service';
 
 @Component({
@@ -37,11 +37,13 @@ export class BdcPageComponent implements OnInit{
   originalPaidBonDeCommandes: any[] = [];
   originalUnpaidBonDeCommandes: any[] = [];
 
-
+// Add these properties to your BdcPageComponent
+  clientName: string | null = null;
 
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,  // Add ActivatedRoute
     private supplierService: SupplierService,
     private sanitizer: DomSanitizer
   ) {
@@ -49,8 +51,12 @@ export class BdcPageComponent implements OnInit{
 
   ngOnInit(): void {
     this.initializeAvailableYears();
-    this.loadFactures();
-    this.loadBonDeCommandes();
+
+    // Get clientName from query parameters if exists
+    this.route.queryParams.subscribe((params: {[key: string]: any}) => {
+      this.clientName = params['clientName'] || null;
+      this.loadBonDeCommandes();
+    });
 
   }
 
@@ -131,6 +137,13 @@ export class BdcPageComponent implements OnInit{
   loadBonDeCommandes(): void {
     this.supplierService.getAllBonDeCommandes().subscribe({
       next: (commandes) => {
+        // Filter by client name if provided
+        if (this.clientName) {
+          commandes = commandes.filter((c: any) =>
+            c.client?.name?.toLowerCase() === this.clientName?.toLowerCase()
+          );
+        }
+
         this.originalPaidBonDeCommandes = commandes.filter((c: any) => c.payment);
         this.originalUnpaidBonDeCommandes = commandes.filter((c: any) => !c.payment);
         this.filterByYear();
@@ -140,6 +153,8 @@ export class BdcPageComponent implements OnInit{
       }
     });
   }
+
+
 
 // Add these new methods for year filtering
 // In reporting-page.component.ts

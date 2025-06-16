@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
-import {Router} from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router'; // Update import
 import {SupplierService} from '../../supplier.service';
 import {CommonModule, NgIf} from '@angular/common';
 
@@ -39,11 +39,14 @@ export class FacturePageComponent implements OnInit {
   originalPaidBonDeCommandes: any[] = [];
   originalUnpaidBonDeCommandes: any[] = [];
 
-
-
+// Add this to your FacturePageComponent
+  supplierId: number | null = null;
+// Add this property to your component
+  supplierName: string | null = null;
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,  // Add this
     private supplierService: SupplierService,
     private sanitizer: DomSanitizer
   ) {
@@ -51,8 +54,11 @@ export class FacturePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeAvailableYears();
-    this.loadFactures();
-    this.loadBonDeCommandes();
+    // Get supplierId from query parameters if exists
+    this.route.queryParams.subscribe((params: {[key: string]: any}) => {
+      this.supplierId = params['supplierId'] ? +params['supplierId'] : null;
+      this.loadFactures();
+    });
 
   }
 
@@ -116,10 +122,17 @@ export class FacturePageComponent implements OnInit {
   loadFactures(): void {
     this.supplierService.getAllFactures().subscribe({
       next: (factures) => {
+        // Filter by supplier if supplierId is provided
+        if (this.supplierId) {
+          factures = factures.filter((f: any) => f.supplier?.id === this.supplierId);
+          // Get supplier name from first matching facture
+          if (factures.length > 0) {
+            this.supplierName = factures[0].supplier?.name;
+          }
+        }
+
         this.originalPaidFactures = factures.filter((f: any) => f.payment);
         this.originalUnpaidFactures = factures.filter((f: any) => !f.payment);
-        this.logDocumentDates(); // <-- Add this
-
         this.filterByYear();
         this.isLoading = false;
       },

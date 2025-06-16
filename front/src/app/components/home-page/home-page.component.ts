@@ -195,11 +195,27 @@ export class HomePageComponent implements OnInit {
   }
 
   goToFacturePage() {
-    this.router.navigate(['/facture']);
+    if (this.selectedSupplier && this.selectedSupplier.id) {
+      // Navigate to facture page with supplier ID as query parameter
+      this.router.navigate(['/facture'], {
+        queryParams: { supplierId: this.selectedSupplier.id }
+      });
+    } else {
+      // Navigate without filter if no supplier selected
+      this.router.navigate(['/facture']);
+    }
   }
 
   goToBDCPage() {
-    this.router.navigate(['/bdc']);
+    if (this.selectedClient && this.selectedClient.name) {
+      // Navigate to BDC page with client name as query parameter
+      this.router.navigate(['/bdc'], {
+        queryParams: { clientName: this.selectedClient.name }
+      });
+    } else {
+      // Navigate without filter if no client selected
+      this.router.navigate(['/bdc']);
+    }
   }
 
   goTosolutionPage() {
