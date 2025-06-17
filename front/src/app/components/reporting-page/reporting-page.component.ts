@@ -197,8 +197,13 @@ export class ReportingPageComponent implements OnInit {
 
 
   goToPage(): void {
-    this.router.navigate(['/home']);
+    const newTab = window.open('/home', '_blank');
+    if (newTab) {
+      window.close(); // Tries to close the current tab
+    }
   }
+
+
   goToPageManagement(): void {
     this.router.navigate(['/management']);
   }
