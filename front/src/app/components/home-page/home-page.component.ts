@@ -909,7 +909,7 @@ export class HomePageComponent implements OnInit {
   initializeAvailableYears(): void {
     const currentYear = new Date().getFullYear();
     this.availableYears = Array.from(
-      { length: 5 }, // Shows current year and previous 4 years
+      { length: currentYear }, // Creates an array from currentYear down to 1
       (_, index) => currentYear - index
     );
   }
