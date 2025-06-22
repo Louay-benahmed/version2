@@ -109,7 +109,7 @@ legend {
 
 #div_client {
   position: absolute;
-  top: 665px;
+  top: 675px;
   background-color: #f0f0f0; /* Light background for the #div_client */
   padding: 20px; /* Optional: padding inside the #div_client */
   border-radius: 10px; /* Optional: rounded corners for #div_client */
@@ -160,7 +160,7 @@ legend {
 /* Ensure the table body is scrollable after 5 lines */
 .table-custom tbody {
   display: block;
-  max-height: 270px; /* Adjust this value based on your row height */
+  max-height: 280px; /* Adjust this value based on your row height */
   overflow-y: auto;
 }
 

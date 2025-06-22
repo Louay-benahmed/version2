@@ -20,17 +20,19 @@
   <div id="div_accounts" class="container mt-5"  >
     <div>
       <h1 class="mb-4">liste des Clients :</h1>
-      <button class="btn btn-primary mb-3" (click)="toggleShowAddSupplierDiv()">
-        <i class="fas fa-user-plus"></i> ajouter un client
+      <button class="btn btn-success mb-3" (click)="toggleShowAddSupplierDiv()">
+        <i class="fas fa-plus fa-user-plus"></i> ajouter un client
+      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+      <button class="btn btn-warning mb-3" (click)="goTosolutionPage()">
+        <i class="fas fa-lightbulb"></i>  solution JUNO
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
       <button class="btn btn-primary mb-3" (click)="goToPage()">
         <i class="fas fa-file-alt"></i>  Rapports
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-      <button class="btn btn-primary mb-3" (click)="goTosolutionPage()">
-        <i class="fas fa-lightbulb"></i>  solution JUNO
-      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
       <table class="table table-custom">
         <thead>
@@ -50,17 +52,17 @@
           <td>{{ row.name || '' }}</td>
           <td>{{ row.email || '' }}</td>
           <td>
-            <button *ngIf="row.id" class="btn btn-danger btn-sm" (click)="viewDetails(row.id)">
-              <i class="fas fa-info-circle"></i> Données
+            <button *ngIf="row.id" class="btn btn-danger btn-sm" style="margin-left: 5px; background-color: #EB5E28; color: white; border: none;" (click)="viewDetails(row.id)">
+              <i class="fas fa-info-circle"></i> Données du client
             </button>
           </td>
           <td>
-            <button *ngIf="row.id" class="btn btn-danger btn-sm" (click)="viewClients(row.id)">
+            <button *ngIf="row.id" class="btn btn-info btn-sm" (click)="viewClients(row.id)">
               <i class="fas fa-folder-open"></i> Liste des grossistes
             </button>
           </td>
           <td>
-            <button *ngIf="row.id" class="btn btn-danger btn-sm" (click)="generateInvoice(row.id)">
+            <button *ngIf="row.id" class="btn btn-secondary btn-sm" (click)="generateInvoice(row.id)">
               <i class="fas fa-file-invoice"></i> Facturation client
             </button>
           </td>
@@ -274,7 +276,7 @@
         <div *ngIf="showClientDiv" class="red-background-container">
           <div  class="container mt-5">
             <h1 class="mb-4">liste des  Grossistes de {{selectedSupplier?.name}}:</h1>
-            <button class="btn btn-primary mb-3" (click)="toggleShowAddClientDiv()">
+            <button class="btn btn-info mb-3" (click)="toggleShowAddClientDiv()">
               <i class="fas fa-user-plus"></i> ajouter un Grossistes
             </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -296,12 +298,13 @@
                 <td>{{ client.name }}</td>
                 <td>{{ client.email }}</td>
                 <td>
-                  <button class="btn btn-danger btn-sm" (click)="viewClientDetails(client.id)">
-                    <i class="fas fa-info-circle"></i> Données
+                  <button class="btn btn-danger btn-sm" style="margin-left: 2px; background-color: #EB5E28; color: white; border: none;"
+                          (click)="viewClientDetails(client.id)">
+                    <i class="fas fa-info-circle"></i> Données du grossiste
                   </button>
                 </td>
                 <td>
-                  <button class="btn btn-danger btn-sm" (click)="generateInvoiceclient(client.id)">
+                  <button class="btn btn-secondary btn-sm" (click)="generateInvoiceclient(client.id)">
                     <i class="fas fa-file-invoice"></i> génération BDC
                   </button>
                 </td>
