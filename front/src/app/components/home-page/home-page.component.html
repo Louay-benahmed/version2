@@ -255,21 +255,39 @@
           <!-- Floating Solutions Panel -->
           <div *ngIf="showSolutionDiv" class="solutions-panel" id="solutionsPanel">
             <div class="panel-header">
-              <label>Solutions disponibles</label>
+              <label>Gestion des solutions du client : {{selectedSupplier?.name}}</label>
               <button class="close-btn" id="closePanel" (click)="toggleSolutionnDiv()">
                 <i class="fas fa-times"></i>
               </button>
             </div>
 
             <div class="solutions-container">
-              <div class="solution-item" *ngFor="let solution of solutions">
-                <span>{{ solution.description }}</span>
-                <button class="add-btn" (click)="addSolutionToSupplier(solution.id)">
-                  <i class="fas fa-plus"></i> Ajouter
-                </button>
+              <!-- Associated Solutions -->
+              <div *ngIf="selectedSupplierId && supplierSolutions.length > 0" class="linked-section">
+                <h5>Solutions associées</h5>
+                <div class="solution-item" *ngFor="let solution of supplierSolutions">
+                  <span>{{ solution.description }}</span>
+                  <button class="btn btn-sm  btn-danger p-1"
+                          style="margin-left: 8px; font-size: 0.7rem; line-height: 1; min-width: 70px;"
+                          (click)="removeSolutionAssociation(solution.id); $event.stopPropagation()">
+                    <i class="fas fa-trash fa-xs"></i> Supprimer
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
+
+              <!-- Available Solutions -->
+              <div class="unlinked-section">
+                <h5 *ngIf="selectedSupplierId && supplierSolutions.length > 0">Solutions disponibles</h5>
+                <div class="solution-item" *ngFor="let solution of getAvailableSolutionsForSupplier()">
+                  <span>{{ solution.description }}</span>
+                  <button class="btn btn-sm btn-success p-1"
+                          style="margin-left: 8px; font-size: 0.7rem; line-height: 1; min-width: 70px;"
+                          (click)="associateSolutionWithSupplier(solution.id); $event.stopPropagation()">
+                    <i class="fas fa-plus fa-xs"></i> Ajouter
+                  </button>
+                </div>
+              </div>
+            </div>      </div>
         </fieldset>
       </div>
       <div id="div_client">

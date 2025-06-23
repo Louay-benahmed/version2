@@ -190,6 +190,12 @@ export class HomePageComponent implements OnInit {
 
   toggleSolutionnDiv(): void {
     this.showSolutionDiv = !this.showSolutionDiv;
+    if (this.showSolutionDiv) {
+      this.loadAllAvailableSolutions();
+      if (this.selectedSupplierId) {
+        this.loadSupplierAssociatedSolutions();
+      }
+    }
   }
 
   goToPage() {
@@ -736,6 +742,8 @@ export class HomePageComponent implements OnInit {
         }
       });
   }
+  // Toggle solution panel visibility
+
   supplierSolutions: Solution[] = [];
   showSolutionsDropdown = false;
   new: any;
@@ -784,6 +792,96 @@ export class HomePageComponent implements OnInit {
           }
         });
     }
+  }
+  // In your component class (replace the existing methods with these)
+
+// Load all available solutions
+  loadAllAvailableSolutions(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.supplierService.getSolutions().subscribe({
+      next: (data) => {
+        this.solutions = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to load solutions. Please try again later.';
+        this.isLoading = false;
+        console.error('Error loading solutions:', err);
+      }
+    });
+  }
+
+// Associate a solution with the selected supplier
+  associateSolutionWithSupplier(solutionId: number) {
+    if (!this.selectedSupplierId) {
+      alert('Please select a supplier first');
+      return;
+    }
+
+    this.supplierService.addSolutionToSupplier(this.selectedSupplierId, solutionId)
+      .subscribe({
+        next: () => {
+          alert('Solution associated successfully!');
+          this.loadSupplierAssociatedSolutions(); // Refresh the list
+        },
+        error: (err) => {
+          alert(`Error: ${err.message}`);
+        }
+      });
+  }
+
+// Load solutions associated with current supplier
+  loadSupplierAssociatedSolutions(): void {
+    if (!this.selectedSupplierId) return;
+
+    this.supplierService.getSupplierSolutions(this.selectedSupplierId)
+      .subscribe({
+        next: (solutions) => {
+          this.supplierSolutions = solutions;
+        },
+        error: (err) => {
+          console.error('Error loading supplier solutions:', err);
+          alert('Failed to load supplier solutions');
+        }
+      });
+  }
+
+// Remove association between solution and supplier
+  removeSolutionAssociation(solutionId: number): void {
+    if (!this.selectedSupplierId) {
+      alert('No supplier selected');
+      return;
+    }
+
+    if (confirm('Are you sure you want to remove this solution association?')) {
+      this.supplierService.removeSolutionFromSupplier(this.selectedSupplierId, solutionId)
+        .subscribe({
+          next: () => {
+            this.supplierSolutions = this.supplierSolutions.filter(
+              solution => solution.id !== solutionId
+            );
+            alert('Solution association removed successfully');
+          },
+          error: (err) => {
+            console.error('Error removing solution:', err);
+            alert('Failed to remove solution association: ' + err.message);
+          }
+        });
+    }
+  }
+
+// Get solutions not associated with current supplier
+  getAvailableSolutionsForSupplier(): Solution[] {
+    if (!this.solutions) return [];
+    if (!this.selectedSupplierId || !this.supplierSolutions || this.supplierSolutions.length === 0) {
+      return this.solutions;
+    }
+
+    return this.solutions.filter(solution =>
+      !this.supplierSolutions.some(linkedSolution => linkedSolution.id === solution.id)
+    );
   }
   // In your component class
   getDisplayRows(): any[] {
