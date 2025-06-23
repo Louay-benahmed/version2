@@ -96,8 +96,8 @@ public class AuthController {
             SimpleMailMessage mailMessage = new SimpleMailMessage();
             mailMessage.setFrom("benahmedlouay220@gmail.com");
             mailMessage.setTo(recipientEmail);
-            mailMessage.setSubject("Verification Code");
-            mailMessage.setText("Your verification code is: " + code);
+            mailMessage.setSubject("Code de vérification");
+            mailMessage.setText("Votre code de vérification est : " + code);
 
             javaMailSender.send(mailMessage);
 

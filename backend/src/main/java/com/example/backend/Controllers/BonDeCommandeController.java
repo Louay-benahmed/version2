@@ -57,8 +57,8 @@ public class BonDeCommandeController {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(email);
-            helper.setSubject("Your Bon de Commande Document");
-            helper.setText("Please find attached your bon de commande document.");
+            helper.setSubject("Bon de Commande");
+            helper.setText("Veuillez trouver ci-joint votre bon de commande.");
             helper.addAttachment("bon_de_commande.pdf", new ByteArrayResource(pdfBytes));
 
             mailSender.send(message);

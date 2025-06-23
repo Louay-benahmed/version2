@@ -58,8 +58,8 @@ public class FactureController {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(email);
-            helper.setSubject("Your Facture Document");
-            helper.setText("Please find attached your facture document.");
+            helper.setSubject("Facture");
+            helper.setText("Veuillez trouver ci-joint votre facture.");
             helper.addAttachment("facture.pdf", new ByteArrayResource(pdfBytes));
 
             mailSender.send(message);
