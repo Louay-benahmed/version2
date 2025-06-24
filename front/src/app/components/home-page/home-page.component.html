@@ -19,7 +19,7 @@
 <div [class.disabled]="showOtherDiv || showSigninDiv">
   <div id="div_accounts" class="container mt-5"  >
     <div>
-      <h1 class="mb-4">liste des Clients :</h1>
+      <h1 class="mb-4">Liste des Clients :</h1>
       <button class="btn btn-success mb-3" (click)="toggleShowAddSupplierDiv()">
         <i class="fas fa-plus fa-user-plus"></i> ajouter un client
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -292,7 +292,7 @@
       <div id="div_client">
         <div *ngIf="showClientDiv" class="red-background-container">
           <div  class="container mt-5">
-            <h1 class="mb-4">liste des  Grossistes de {{selectedSupplier?.name}}:</h1>
+            <h1 class="mb-4">Liste des  Grossistes de {{selectedSupplier?.name}}:</h1>
             <button class="btn btn-info mb-3" (click)="toggleShowAddClientDiv()">
               <i class="fas fa-user-plus"></i> ajouter un Grossistes
             </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
