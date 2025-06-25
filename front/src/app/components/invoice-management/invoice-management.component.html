@@ -33,30 +33,51 @@
         <button (click)="goToReporting()" class="btn btn-success" style="height: 40px;">
           <i class="fas fa-chart-bar"></i> &nbsp;&nbsp;Dashboard
         </button>
+        <button (click)="goTobdc()" class="btn btn-warning" style="height: 40px;">
+          <i class="fas fa-file-alt"></i> &nbsp;&nbsp;Statut du bon de commande
+        </button>
         <div class="year-filter-container" style="margin-bottom: 20px;">
           <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-5">  <!-- Supplier dropdown -->
+              <select class="form-control"
+                      [(ngModel)]="selectedSupplierId"
+                      (change)="onSupplierChange()">
+                <option [ngValue]="null">All Suppliers</option>
+                <option *ngFor="let supplier of suppliers"
+                        [ngValue]="supplier.id">
+                  {{ supplier.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-3">  <!-- Year select -->
               <select id="selectedYear" class="form-control"
                       [(ngModel)]="selectedYear" (change)="filterByYear()">
                 <option *ngFor="let year of availableYears" [value]="year">{{year}}</option>
               </select>
             </div>
-            <div class="col-md-2" style="display: flex; align-items: flex-end;">
+            <div class="col-md-4" style="display: flex; align-items: flex-end;">  <!-- Reset button -->
               <button class="btn btn-secondary" (click)="resetYearFilter()">
                 <i class="fas fa-redo"></i> &nbsp;&nbsp;Année actuelle
               </button>
             </div>
           </div>
         </div>
-
       </div>
     </div>
     <br>
     <h2 class="section-title">
-      <i class="fas fa-file-invoice"></i> Statut de paiement de la facture
+      <i class="fas fa-file-invoice"></i> Statuts de paiement des factures
       <span *ngIf="isLoading" class="loading-indicator">Loading...</span>
-    </h2>
 
+    </h2>
+    <div *ngIf="selectedSupplierId" class="alert alert-info mb-3">
+      <i class="fas fa-layer-group"></i>
+      Statuts de paiement des factures du :
+      <strong>
+        {{ getSelectedSupplierName() }} en {{ selectedYear }}
+      </strong>
+    </div>
     <div class="row">
       <!-- Paid Invoices -->
       <div class="col-md-6">
@@ -142,6 +163,7 @@
             <h3><i class="fas fa-exclamation-circle"></i> Factures impayées</h3>
             <span class="badge">{{ unpaidFactures.length }}</span>
           </div>
+
           <div class="panel-content">
             <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
 
@@ -214,167 +236,6 @@
     </div>
   </section>
 
-  <section class="dashboard-section">
-    <h2 class="section-title">
-      <i class="fas fa-file-invoice"></i> Statut du bon de commande
-    </h2>
-
-    <div class="row">
-      <!-- Paid Purchase Orders -->
-      <div class="col-md-6">
-        <div class="invoice-panel paid">
-          <div class="panel-header">
-            <h3><i class="fas fa-check-circle"></i> Commandes payées</h3>
-            <span class="badge">{{ paidBonDeCommandes.length }}</span>
-          </div>
-          <div class="panel-content">
-            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
-
-            <table class="table table-bordered">
-              <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
-              <tr>
-                <th style="background-color: #dee2e6">Numero</th>
-                <th style="background-color: #dee2e6">Date</th>
-                <th style="background-color: #dee2e6">Grossiste</th>
-                <th style="background-color: #dee2e6">Email</th>
-                <th style="background-color: #dee2e6">Actions</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let commande of paidBonDeCommandes">
-                <td>{{ commande.numero }}</td>
-                <td>{{ commande.dateCreation | date }}</td>
-                <td>{{ commande.client?.name }}</td>
-                <td>{{ commande.client?.email }}</td>
-                <td>
-                  <div class="action-buttons">
-                    <!-- View Document -->
-                    <button (click)="viewDocument(commande.document)"
-                            class="btn btn-sm btn-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#pdfModal"
-                            title="Afficher le PDF">
-                      <i class="fas fa-file-pdf"></i>
-                    </button>
-
-                    <!-- Send Email -->
-                    <button (click)="sendBonDeCommandeByEmail(commande.document, commande.client?.email, commande.id)"
-                            class="btn btn-sm btn-success"
-                            [disabled]="!commande.client?.email"
-                            title="Envoyer un e-mail">
-                      <i *ngIf="!sendingBonDeCommandeEmails[commande.id]" class="fas fa-paper-plane"></i>
-                      <i *ngIf="sendingBonDeCommandeEmails[commande.id]" class="fas fa-spinner fa-spin"></i>
-                    </button>
-
-                    <!-- Toggle Payment -->
-                    <button (click)="toggleBonDeCommandePayment(commande.id, !commande.payment)"
-                            class="btn btn-sm"
-                            [ngClass]="commande.payment ? 'btn-danger' : 'btn-success'"
-                            [disabled]="updatingBonDeCommandePayment[commande.id]"
-                            [title]="commande.payment ? 'Marquer comme impayé' : 'Marquer comme payé'">
-                      <i *ngIf="!updatingBonDeCommandePayment[commande.id]"
-                         class="fas"
-                         [class.fa-times-circle]="commande.payment"
-                         [class.fa-check-circle]="!commande.payment"></i>
-                      <i *ngIf="updatingBonDeCommandePayment[commande.id]" class="fas fa-spinner fa-spin"></i>
-                    </button>
-
-                    <!-- Delete -->
-                    <button (click)="deleteBonDeCommande(commande.id)"
-                            class="btn btn-sm btn-danger"
-                            [disabled]="deletingBonDeCommande[commande.id]"
-                            title="Supprimer">
-                      <i *ngIf="!deletingBonDeCommande[commande.id]" class="fas fa-trash-alt"></i>
-                      <i *ngIf="deletingBonDeCommande[commande.id]" class="fas fa-spinner fa-spin"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Unpaid Purchase Orders -->
-      <div class="col-md-6">
-        <div class="invoice-panel unpaid">
-          <div class="panel-header">
-            <h3><i class="fas fa-exclamation-circle"></i> Commandes impayées</h3>
-            <span class="badge">{{ unpaidBonDeCommandes.length }}</span>
-          </div>
-          <div class="panel-content">
-            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
-
-            <table class="table table-bordered">
-              <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
-              <tr>
-                <th style="background-color: #dee2e6">Numero</th>
-                <th style="background-color: #dee2e6">Date</th>
-                <th style="background-color: #dee2e6">Grossiste</th>
-                <th style="background-color: #dee2e6">Email</th>
-                <th style="background-color: #dee2e6">Actions</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let commande of unpaidBonDeCommandes">
-                <td>{{ commande.numero }}</td>
-                <td>{{ commande.dateCreation | date }}</td>
-                <td>{{ commande.client?.name }}</td>
-                <td>{{ commande.client?.email }}</td>
-                <td>
-                  <div class="action-buttons">
-                    <!-- View Document -->
-                    <button (click)="viewDocument(commande.document)"
-                            class="btn btn-sm btn-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#pdfModal"
-                            title="Afficher le PDF">
-                      <i class="fas fa-file-pdf"></i>
-                    </button>
-
-                    <!-- Send Email -->
-                    <button (click)="sendBonDeCommandeByEmail(commande.document, commande.client?.email, commande.id)"
-                            class="btn btn-sm btn-success"
-                            [disabled]="!commande.client?.email"
-                            title="Envoyer un e-mail">
-                      <i *ngIf="!sendingBonDeCommandeEmails[commande.id]" class="fas fa-paper-plane"></i>
-                      <i *ngIf="sendingBonDeCommandeEmails[commande.id]" class="fas fa-spinner fa-spin"></i>
-                    </button>
-
-                    <!-- Toggle Payment -->
-                    <button (click)="toggleBonDeCommandePayment(commande.id, !commande.payment)"
-                            class="btn btn-sm"
-                            [ngClass]="commande.payment ? 'btn-danger' : 'btn-success'"
-                            [disabled]="updatingBonDeCommandePayment[commande.id]"
-                            [title]="commande.payment ? 'Marquer comme impayé' : 'Marquer comme payé'">
-                      <i *ngIf="!updatingBonDeCommandePayment[commande.id]"
-                         class="fas"
-                         [class.fa-times-circle]="commande.payment"
-                         [class.fa-check-circle]="!commande.payment"></i>
-                      <i *ngIf="updatingBonDeCommandePayment[commande.id]" class="fas fa-spinner fa-spin"></i>
-                    </button>
-
-                    <!-- Delete -->
-                    <button (click)="deleteBonDeCommande(commande.id)"
-                            class="btn btn-sm btn-danger"
-                            [disabled]="deletingBonDeCommande[commande.id]"
-                            title="Supprimer">
-                      <i *ngIf="!deletingBonDeCommande[commande.id]" class="fas fa-trash-alt"></i>
-                      <i *ngIf="deletingBonDeCommande[commande.id]" class="fas fa-spinner fa-spin"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 </main>
 
 <!-- PDF Viewer Modal -->
