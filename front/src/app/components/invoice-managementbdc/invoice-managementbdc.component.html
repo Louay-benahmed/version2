@@ -38,19 +38,30 @@
         </button>
         <div class="year-filter-container" style="margin-bottom: 20px;">
           <div class="row">
+            <!-- Wholesaler Filter -->
             <div class="col-md-5">
+              <select id="selectedWholesaler" class="form-control"
+                      [(ngModel)]="selectedWholesaler" (change)="applyFilters()">
+                <option value="">Tous les grossistes</option>
+                <option *ngFor="let wholesaler of availableWholesalers" [value]="wholesaler">
+                  {{wholesaler}}
+                </option>
+              </select>
+            </div>
+            <!-- Year Filter -->
+            <div class="col-md-3">
               <select id="selectedYear" class="form-control"
-                      [(ngModel)]="selectedYear" (change)="filterByYear()">
+                      [(ngModel)]="selectedYear" (change)="applyFilters()">
                 <option *ngFor="let year of availableYears" [value]="year">{{year}}</option>
               </select>
             </div>
+            <!-- Reset Button -->
             <div class="col-md-2" style="display: flex; align-items: flex-end;">
               <button class="btn btn-secondary" (click)="resetYearFilter()">
                 <i class="fas fa-redo"></i> &nbsp;&nbsp;Année actuelle
               </button>
             </div>
-          </div>
-        </div>
+          </div>        </div>
 
       </div>
     </div>
@@ -59,7 +70,12 @@
       <i class="fas fa-file-invoice"></i> Statuts de paiement des bons de commande
       <span *ngIf="isLoading" class="loading-indicator">Loading...</span>
     </h2>
-
+    <!-- This will ONLY show when a specific wholesaler is selected -->
+    <div *ngIf="selectedWholesaler" class="alert alert-info mb-3">
+      <i class="fas fa-layer-group"></i>
+      Statuts de paiement des bons de commande du :
+      <strong>{{ selectedWholesaler }}</strong> en <strong>{{ selectedYear }}</strong>
+    </div>
     <div class="row">
       <!-- Paid Purchase Orders -->
       <div class="col-md-6">

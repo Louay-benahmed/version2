@@ -56,8 +56,9 @@ export class InvoiceManagementbdcComponent implements OnInit {
     this.initializeAvailableYears();
     this.loadFactures();
     this.loadBonDeCommandes();
-
+    this.loadWholesalers();
   }
+
 
   initializeAvailableYears(): void {
     const currentYear = new Date().getFullYear();
@@ -372,4 +373,56 @@ export class InvoiceManagementbdcComponent implements OnInit {
       }
     });
   }
+  selectedWholesaler: string = '';
+  availableWholesalers: string[] = [];
+  // ... rest of your existing properties
+
+
+  loadWholesalers(): void {
+    this.supplierService.getAllBonDeCommandes().subscribe({
+      next: (commandes) => {
+        // Extract unique wholesaler names
+        this.availableWholesalers = [...new Set(
+          commandes.map(c => c.client?.name).filter(name => name)
+        )].sort();
+      },
+      error: (err) => {
+        console.error('Error loading wholesalers:', err);
+      }
+    });
+  }
+
+// Add these properties to your component
+  selectedClientName: string = '';
+  selectedYearDisplay: string = '';
+
+// Modify your applyFilters() method
+  applyFilters(): void {
+    if (!this.selectedYear) return;
+
+    const targetYear = Number(this.selectedYear);
+    const targetWholesaler = this.selectedWholesaler;
+
+    // Filtering logic remains the same...
+    const filterItems = (items: any[]): any[] => {
+      return items.filter(item => {
+        const date = new Date(item.dateCreation);
+        const yearMatch = date.getUTCFullYear() === targetYear;
+        const wholesalerMatch = !targetWholesaler ||
+          (item.client?.name === targetWholesaler);
+        return yearMatch && wholesalerMatch;
+      });
+    };
+
+    this.paidBonDeCommandes = filterItems(this.originalPaidBonDeCommandes);
+    this.unpaidBonDeCommandes = filterItems(this.originalUnpaidBonDeCommandes);
+  }
+  resetFilters(): void {
+    this.selectedYear = new Date().getFullYear();
+    this.selectedYearDisplay = this.selectedYear.toString();
+    this.selectedWholesaler = '';
+    this.selectedClientName = 'Tous les grossistes';
+    this.applyFilters();
+  }
+
 }
