@@ -44,6 +44,17 @@ export class FacturePageComponent implements OnInit {
 // Add this property to your component
   supplierName: string | null = null;
 
+
+// Add these properties to your component class
+  clientEmail: string | undefined; // Should be populated with the client's email
+  factureId: number | undefined; // Should be populated with the invoice ID
+  currentDocument: string = ''; // To store the document content
+  // Add these properties
+  showEmailForm: boolean = false;
+  emailSubject: string = 'Facture';
+  emailBody: string = 'Veuillez trouver ci-joint votre facture.';
+  currentFacture: any = null;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,  // Add this
@@ -224,18 +235,49 @@ export class FacturePageComponent implements OnInit {
 
   sendingEmails: {[key: number]: boolean} = {};
 
-  sendFactureByEmail(document: string, email: string | undefined, factureId: number) {
+  // Update your send method
+// Method to open email form
+  openEmailForm(facture: any) {
+    this.currentFacture = facture;
+    // Reset form fields to defaults when opening
+    this.emailSubject = 'Facture';
+    this.emailBody = 'Veuillez trouver ci-joint votre facture.';
+    this.showEmailForm = true;
+  }
+
+// Method to send email
+  sendFactureByEmail() {
+    if (!this.currentFacture) return;
+
+    const document = this.currentFacture.document;
+    const email = this.currentFacture.supplier?.email;
+    const factureId = this.currentFacture.facture_id;
+
     if (!email) {
-      alert('Aucune adresse e-mail disponible pour ce Client');
+      alert('Aucune adresse e-mail disponible pour ce fournisseur');
+      return;
+    }
+
+    if (!this.emailSubject || !this.emailBody) {
+      alert('Veuillez saisir un sujet et un corps pour l\'email');
       return;
     }
 
     this.sendingEmails[factureId] = true;
 
-    this.supplierService.sendFactureByEmail(document, email).subscribe({
+    this.supplierService.sendFactureByEmailaa(
+      document,
+      email,
+      this.emailSubject,
+      this.emailBody
+    ).subscribe({
       next: () => {
         this.sendingEmails[factureId] = false;
         alert(`Facture envoyée avec succès à ${email}`);
+        this.showEmailForm = false;
+        // Reset form fields to defaults when opening
+        this.emailSubject = 'Facture';
+        this.emailBody = 'Veuillez trouver ci-joint votre facture.';
       },
       error: (err) => {
         this.sendingEmails[factureId] = false;
