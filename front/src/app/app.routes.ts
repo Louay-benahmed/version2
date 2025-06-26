@@ -8,7 +8,8 @@ import {InvoiceManagementComponent} from './components/invoice-management/invoic
 import { InvoiceManagementbdcComponent } from './components/invoice-managementbdc/invoice-managementbdc.component'; // Fixed import name
 import {FacturePageComponent} from './components/facture-page/facture-page.component';
 import {BdcPageComponent} from './components/bdc-page/bdc-page.component';
-
+import { DatabasePageComponent } from './components/database-page/database-page.component';
+import { PaymentPageComponent } from './components/payment-page/payment-page.component';
 export const routes: Routes = [
 
   { path: 'solution', component: SolutionComponent },
@@ -19,10 +20,10 @@ export const routes: Routes = [
   { path: 'reporting', component: ReportingPageComponent },
   { path: 'management', component: InvoiceManagementComponent },
   { path: 'management bon de commande', component: InvoiceManagementbdcComponent },
-
   { path: 'facture', component: FacturePageComponent },
   { path: 'bdc', component: BdcPageComponent },
-
+  { path: 'database', component: DatabasePageComponent },
+  { path: 'payment', component: PaymentPageComponent }
   /*
       Access the New Page:
       Start the Angular development server (ng serve) and navigate to
