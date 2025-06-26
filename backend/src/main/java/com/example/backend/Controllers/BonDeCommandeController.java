@@ -47,20 +47,29 @@ public class BonDeCommandeController {
         try {
             String documentContent = request.get("documentContent");
             String email = request.get("recipientEmail");
+            String subject = request.get("emailSubject");
+            String body = request.get("emailBody");
 
+            // 1. VALIDATION (Same as Facture)
             if (email == null || email.isBlank()) {
                 return ResponseEntity.badRequest().body("Recipient email is required");
             }
+            if (documentContent == null || documentContent.isBlank()) {
+                return ResponseEntity.badRequest().body("Document content is required");
+            }
 
+            // 2. DECODE PDF (Same as Facture)
             byte[] pdfBytes = Base64.getDecoder().decode(documentContent);
 
+            // 3. CREATE EMAIL (Same pattern as Facture, just with Bon de Commande defaults)
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(email);
-            helper.setSubject("Bon de Commande");
-            helper.setText("Veuillez trouver ci-joint votre bon de commande.");
-            helper.addAttachment("bon_de_commande.pdf", new ByteArrayResource(pdfBytes));
+            helper.setSubject(subject != null ? subject : "Bon de Commande"); // Default subject
+            helper.setText(body != null ? body : "Veuillez trouver ci-joint votre bon de commande."); // Default body
+            helper.addAttachment("bon_de_commande.pdf", new ByteArrayResource(pdfBytes)); // Different filename
 
+            // 4. SEND EMAIL (Same as Facture)
             mailSender.send(message);
 
             return ResponseEntity.ok("Email sent successfully");

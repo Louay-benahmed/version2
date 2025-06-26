@@ -336,6 +336,32 @@ export class SupplierService {
     );
   }
 
+  sendBonDeCommandeByEmailaa(
+    document: string,
+    recipientEmail: string,
+    subject: string,
+    body: string
+  ): Observable<any> {
+    const headers = this.getHeaders();
+    const payload = {
+      documentContent: document,
+      recipientEmail: recipientEmail,
+      emailSubject: subject,
+      emailBody: body
+    };
+
+    return this.http.post(`${this.apiUrlbdc}/send-email`, payload, {
+      headers,
+      responseType: 'text'
+    }).pipe(
+      map(response => ({ message: response })),
+      catchError(error => throwError(() => ({
+        message: error.error?.message || 'Failed to send email',
+        status: error.status
+      })))
+    );
+  }
+
   updateFacturePaymentStatus(factureId: number, paymentStatus: boolean): Observable<any> {
     const headers = this.getHeaders();
     return this.http.put(`${this.apiUrlfacture}/payment-status/${factureId}`,

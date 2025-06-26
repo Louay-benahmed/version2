@@ -42,6 +42,12 @@ export class InvoiceManagementbdcComponent implements OnInit {
   originalPaidBonDeCommandes: any[] = [];
   originalUnpaidBonDeCommandes: any[] = [];
 
+  // Add these properties to your component
+  showCommandeEmailForm: boolean = false;
+  commandeEmailSubject: string = 'Bon de Commande';
+  commandeEmailBody: string = 'Veuillez trouver ci-joint votre bon de commande.';
+  currentCommande: any = null;
+
 
 
 
@@ -243,7 +249,22 @@ export class InvoiceManagementbdcComponent implements OnInit {
   }
 
 
-  sendBonDeCommandeByEmail(document: string, email: string | undefined, commandeId: number) {
+  // Method to open email form
+  openCommandeEmailForm(commande: any) {
+    this.currentCommande = commande;
+    this.commandeEmailSubject = 'Bon de Commande';
+    this.commandeEmailBody = 'Veuillez trouver ci-joint votre bon de commande.';
+    this.showCommandeEmailForm = true;
+  }
+
+// Method to send email
+  sendBonDeCommandeByEmail() {
+    if (!this.currentCommande) return;
+
+    const document = this.currentCommande.document;
+    const email = this.currentCommande.client?.email;
+    const commandeId = this.currentCommande.id;
+
     if (!email) {
       alert('Aucune adresse email disponible pour ce Grossiste');
       return;
@@ -251,10 +272,16 @@ export class InvoiceManagementbdcComponent implements OnInit {
 
     this.sendingBonDeCommandeEmails[commandeId] = true;
 
-    this.supplierService.sendBonDeCommandeByEmail(document, email).subscribe({
+    this.supplierService.sendBonDeCommandeByEmailaa(
+      document,
+      email,
+      this.commandeEmailSubject,
+      this.commandeEmailBody
+    ).subscribe({
       next: () => {
         this.sendingBonDeCommandeEmails[commandeId] = false;
         alert(`Bon de commande envoyé avec succès à ${email}`);
+        this.showCommandeEmailForm = false;
       },
       error: (err) => {
         this.sendingBonDeCommandeEmails[commandeId] = false;
@@ -262,6 +289,11 @@ export class InvoiceManagementbdcComponent implements OnInit {
         alert('Échec de l\'envoi de l\'e-mail: ' + (err.message || 'Erreur inconnue'));
       }
     });
+  }
+
+// Method to cancel email
+  cancelCommandeEmail() {
+    this.showCommandeEmailForm = false;
   }
 
   toggleFacturePayment(factureId: number, newStatus: boolean): void {
