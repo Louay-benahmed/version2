@@ -48,6 +48,8 @@ public class FactureController {
         try {
             String documentContent = request.get("documentContent");
             String email = request.get("recipientEmail");
+            String subject = request.get("emailSubject");
+            String body = request.get("emailBody");
 
             if (email == null || email.isBlank()) {
                 return ResponseEntity.badRequest().body("Recipient email is required");
@@ -58,8 +60,8 @@ public class FactureController {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(email);
-            helper.setSubject("Facture");
-            helper.setText("Veuillez trouver ci-joint votre facture.");
+            helper.setSubject(subject != null ? subject : "Facture"); // Default subject if null
+            helper.setText(body != null ? body : "Veuillez trouver ci-joint votre facture."); // Default body if null
             helper.addAttachment("facture.pdf", new ByteArrayResource(pdfBytes));
 
             mailSender.send(message);

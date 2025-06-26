@@ -6,6 +6,8 @@
   <title>Invoice Management System</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.3/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -116,7 +118,8 @@
                     </button>
 
                     <!-- Send Email -->
-                    <button (click)="sendFactureByEmail(facture.document, facture.supplier?.email, facture.facture_id)"
+                    <!-- In your invoice table/listing -->
+                    <button (click)="openEmailForm(facture)"
                             class="btn btn-sm btn-success"
                             [disabled]="!facture.supplier?.email"
                             title="Envoyer un e-mail">
@@ -193,7 +196,8 @@
                     </button>
 
                     <!-- Send Email -->
-                    <button (click)="sendFactureByEmail(facture.document, facture.supplier?.email, facture.facture_id)"
+                    <!-- In your invoice table/listing -->
+                    <button (click)="openEmailForm(facture)"
                             class="btn btn-sm btn-success"
                             [disabled]="!facture.supplier?.email"
                             title="Envoyer un e-mail">
@@ -258,6 +262,60 @@
     </div>
   </div>
 </div>
+<!-- Email Form (shown when showEmailForm is true) -->
+<div *ngIf="showEmailForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="relative px-4 py-10 bg-white mx-4 md:mx-0 shadow rounded-3xl sm:p-10 w-full max-w-md">
+    <div class="max-w-md mx-auto">
+      <div class="text-center font-semibold text-xl mb-5">Envoyer la facture par email</div>
+
+      <form (ngSubmit)="sendFactureByEmail()">
+        <div class="mt-4 mb-3 font-semibold text-sm">Destinataire :</div>
+        <div class="mb-8">
+          <input type="email"
+                 [value]="currentFacture?.supplier?.email"
+                 class="bg-gray-200 appearance-none border-2 border-gray-200 rounded-xl w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                 disabled>
+        </div>
+
+        <div class="mt-4 mb-3 font-semibold text-sm">Sujet :</div>
+        <div class="mb-8">
+          <input type="text"
+                 [(ngModel)]="emailSubject"
+                 name="emailSubject"
+                 class="bg-gray-200 appearance-none border-2 border-gray-200 rounded-xl w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                 required>
+        </div>
+
+        <div class="text-sm font-semibold mb-3">Message :</div>
+        <div>
+          <textarea [(ngModel)]="emailBody"
+                    name="emailBody"
+                    class="bg-gray-200 appearance-none border-2 border-gray-200 rounded-xl w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                    rows="5"
+                    required></textarea>
+        </div>
+
+        <div class="mt-6 mb-4 flex items-center justify-center gap-4">
+          <div *ngIf="sendingEmails[currentFacture?.facture_id]"
+               class="w-6 h-6 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin"></div>
+
+          <button type="submit"
+                  class="bg-blue-500 hover:bg-blue-600 font-bold text-white py-2 px-5 rounded-xl transition-colors"
+                  [disabled]="sendingEmails[currentFacture?.facture_id]">
+            <i class="fas fa-paper-plane mr-2"></i>Envoyer
+          </button>
+
+          <button type="button"
+                  (click)="showEmailForm = false"
+                  class="bg-gray-500 hover:bg-gray-600 font-bold text-white py-2 px-5 rounded-xl transition-colors">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
 <!-- Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>

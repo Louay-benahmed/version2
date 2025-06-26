@@ -251,6 +251,31 @@ export class SupplierService {
     return this.http.get<any[]>(`${this.apiUrlfacture}/factures/unpaid`, { headers });
   }
 
+  sendFactureByEmailaa(
+    document: string,
+    recipientEmail: string,
+    subject: string,
+    body: string
+  ): Observable<any> {
+    const headers = this.getHeaders();
+    const payload = {
+      documentContent: document,
+      recipientEmail: recipientEmail,
+      emailSubject: subject,
+      emailBody: body
+    };
+
+    return this.http.post(`${this.apiUrlfacture}/send-email`, payload, {
+      headers,
+      responseType: 'text'
+    }).pipe(
+      map(response => ({ message: response })),
+      catchError(error => throwError(() => ({
+        message: error.error?.message || 'Failed to send email',
+        status: error.status
+      })))
+    );
+  }
   sendFactureByEmail(document: string, recipientEmail: string): Observable<any> {
     const headers = this.getHeaders();
     const payload = {
@@ -273,7 +298,6 @@ export class SupplierService {
       })
     );
   }
-
   getAllBonDeCommandes(): Observable<any[]> {
     const headers = this.getHeaders();
     return this.http.get<any[]>(`${this.apiUrlbdc}`, { headers });
