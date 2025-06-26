@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from '@angular/common/http';
 import {catchError, map, Observable, tap, throwError} from 'rxjs';
 import {ClientExcelData, CreateSolutionDto, Solution, Supplier} from './models/supplier';
+import { saveAs } from 'file-saver';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ export class SupplierService {
   private apiUrlSolution = 'http://localhost:8083/api/solutions';
   private apiUrlfacture = 'http://localhost:8083/api/factures';
   private apiUrlbdc = 'http://localhost:8083/api/bon-de-commandes';
+  private apiUrlExport = 'http://localhost:8083/api/export'; // Add export endpoint
 
 
   constructor(private http: HttpClient) {}
@@ -370,4 +372,34 @@ export class SupplierService {
     const headers = this.getHeaders();
     return this.http.get<any[]>(`${this.apiUrlbdc}/client/${clientName}/unpaid`, { headers });
   }
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'An unknown error occurred!';
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
+  }
+
+  // Add this new method for Excel export
+  exportSuppliersToExcel(): Observable<Blob> {
+    const headers = this.getHeaders();
+    return this.http.get(`${this.apiUrlExport}/suppliers-excel`, {
+      headers: headers,
+      responseType: 'blob'
+    }).pipe(
+      tap((data: Blob) => {
+        const currentDate = new Date();
+        const dateString = currentDate.toISOString().split('T')[0];
+        saveAs(data, `suppliers_export_${dateString}.xlsx`);
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+
 }

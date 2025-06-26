@@ -9,6 +9,9 @@ import { CommonModule } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Chart} from 'chart.js';
 
+import { ToastrService } from 'ngx-toastr';
+import { provideToastr } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
 @Component({
   selector: 'app-home-page',
   standalone: true,
@@ -79,7 +82,24 @@ export class HomePageComponent implements OnInit {
   showExcelDataDiv: boolean = false;
   showExcelDataInfoDiv: boolean = false;
   clientExcelData: ClientExcelData | null = null;
+// Add this property to track export state
+  isExporting = false;
 
+// Add this method for Excel export
+  exportToExcel() {
+    this.isExporting = true;
+    this.supplierService.exportSuppliersToExcel().subscribe({
+      next: () => {
+        this.isExporting = false;
+        this.toastr.success('Export Excel terminé avec succès', 'Succès');
+      },
+      error: (err) => {
+        this.isExporting = false;
+        this.toastr.error('Erreur lors de l\'export Excel', 'Erreur');
+        console.error('Export error:', err);
+      }
+    });
+  }
 // Add these methods to your component
   toggleShowExcelDataDiv(): void {
     this.showExcelDataDiv = !this.showExcelDataDiv;
@@ -175,7 +195,7 @@ export class HomePageComponent implements OnInit {
   }
 ////////////////////////////////////////////////////////////////////////
 
-  constructor(private supplierService: SupplierService, private router: Router, private cd: ChangeDetectorRef) {}
+  constructor(private supplierService: SupplierService, private router: Router, private cd: ChangeDetectorRef, private toastr: ToastrService) {}
 
   scrollToReports(): void {
     this.showClientDiv = true;

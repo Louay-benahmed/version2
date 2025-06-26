@@ -1,0 +1,57 @@
+package com.example.backend.Controllers;
+
+import com.example.backend.Entity.Supplier;
+import com.example.backend.Repositories.SupplierRepository; // Add this import
+import com.example.backend.Services.ExcelExportService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/export")
+public class ExportController {
+
+    @Autowired
+    private ExcelExportService excelExportService;
+
+    @Autowired
+    private SupplierRepository supplierRepository; // Add repository
+
+    @GetMapping("/suppliers-excel")
+    public ResponseEntity<byte[]> exportSuppliersToExcel() {
+        try {
+            // Fetch actual data from database
+            List<Supplier> suppliers = supplierRepository.findAllWithClientsAndExcelData();
+
+            if (suppliers.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No suppliers available for export");
+            }
+
+            byte[] excelBytes = excelExportService.exportSuppliersToExcel(suppliers);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            headers.setContentDisposition(
+                    ContentDisposition.attachment()
+                            .filename("suppliers_export_" + LocalDate.now() + ".xlsx", StandardCharsets.UTF_8)
+                            .build()
+            );
+
+            return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating Excel file", e);
+        }
+    }
+}
