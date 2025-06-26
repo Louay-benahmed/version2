@@ -61,19 +61,23 @@
       <!-- Paid Invoices -->
       <div class="col-md-6">
         <div class="invoice-panel paid">
-          <div class="panel-header">
+          <div class="panel-header" style="z-index: 1; border-bottom: 2px solid #000;">
             <h3><i class="fas fa-check-circle"></i> Factures payées</h3>
             <span class="badge">{{ paidFactures.length }}</span>
           </div>
           <div class="panel-content">
+            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+
+
             <table class="table table-bordered">
-              <thead>
+              <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
+
               <tr>
-                <th>Numero</th>
-                <th>Date</th>
-                <th>Client</th>
-                <th>Email</th>
-                <th>Actions</th>
+                <th style="background-color: #dee2e6">Numero</th>
+                <th style="background-color: #dee2e6">Date</th>
+                <th style="background-color: #dee2e6">Client</th>
+                <th style="background-color: #dee2e6">Email</th>
+                <th style="background-color: #dee2e6">Actions</th>
               </tr>
               </thead>
               <tbody>
@@ -128,6 +132,7 @@
               </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
@@ -135,19 +140,23 @@
       <!-- Unpaid Invoices -->
       <div class="col-md-6">
         <div class="invoice-panel unpaid">
-          <div class="panel-header">
+          <div class="panel-header" style="z-index: 1; border-bottom: 2px solid #000;">
             <h3><i class="fas fa-exclamation-circle"></i> Factures impayées</h3>
             <span class="badge">{{ unpaidFactures.length }}</span>
           </div>
           <div class="panel-content">
+            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+
+
             <table class="table table-bordered">
-              <thead>
+              <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
+
               <tr>
-                <th>Numero</th>
-                <th>Date</th>
-                <th>Client</th>
-                <th>Email</th>
-                <th>Actions</th>
+                <th style="background-color: #dee2e6">Numero</th>
+                <th style="background-color: #dee2e6">Date</th>
+                <th style="background-color: #dee2e6">Client</th>
+                <th style="background-color: #dee2e6">Email</th>
+                <th style="background-color: #dee2e6">Actions</th>
               </tr>
               </thead>
               <tbody>
@@ -202,6 +211,7 @@
               </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
