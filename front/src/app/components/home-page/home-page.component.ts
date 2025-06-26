@@ -1159,6 +1159,19 @@ export class HomePageComponent implements OnInit {
     }
   }
 
-
+  exportSupplierExcel() {
+    if (this.selectedSupplier?.id) {
+      this.supplierService.exportSupplierToExcel(this.selectedSupplier.id).subscribe(
+        () => {
+          // Optional: Add success notification
+          console.log('Export successful');
+        },
+        (error) => {
+          // Optional: Add error notification
+          console.error('Export failed:', error);
+        }
+      );
+    }
+  }
 
 }

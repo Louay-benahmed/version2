@@ -301,6 +301,11 @@
             <button class="btn btn-info mb-3" (click)="toggleShowAddClientDiv()">
               <i class="fas fa-user-plus"></i> ajouter un Grossistes
             </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <!-- New Excel Export button -->
+            <button class="btn btn-success" (click)="exportSupplierExcel()"
+                    [disabled]="!selectedSupplier?.id">
+              <i class="fas fa-file-excel"></i> Exporter en Excel
+            </button>
 
             <!-- Table to display clients -->
             <table class="table table-custom">

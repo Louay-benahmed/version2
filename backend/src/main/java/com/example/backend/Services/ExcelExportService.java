@@ -198,4 +198,40 @@ public class ExcelExportService {
         style.setBorderLeft(BorderStyle.THIN);
         return style;
     }
+
+    public byte[] exportSingleSupplierToExcel(Supplier supplier) throws IOException {
+        if (supplier == null) {
+            throw new IllegalArgumentException("Supplier cannot be null");
+        }
+
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            // Create styles once
+            CellStyle headerStyle = createHeaderStyle(workbook);
+            CellStyle dataStyle = createDataStyle(workbook);
+
+            // Create sheet for the single supplier
+            Sheet sheet = workbook.createSheet(sanitizeSheetName(supplier.getName()));
+
+            // Create header row
+            createHeaders(sheet.createRow(0), headerStyle);
+
+            // Add client data
+            int rowNum = 1;
+            for (Client client : supplier.getClients()) {
+                Row row = sheet.createRow(rowNum++);
+                populateClientData(row, client, dataStyle);
+            }
+
+            // Auto-size columns
+            for (int i = 0; i < 30; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
 }

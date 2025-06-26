@@ -400,6 +400,21 @@ export class SupplierService {
       catchError(this.handleError)
     );
   }
+  // Add this new method for single supplier Excel export
+  exportSupplierToExcel(supplierId: number): Observable<Blob> {
+    const headers = this.getHeaders();
+    return this.http.get(`${this.apiUrlExport}/supplier-excel/${supplierId}`, {
+      headers: headers,
+      responseType: 'blob'
+    }).pipe(
+      tap((data: Blob) => {
+        const currentDate = new Date();
+        const dateString = currentDate.toISOString().split('T')[0];
+        saveAs(data, `supplier_${supplierId}_export_${dateString}.xlsx`);
+      }),
+      catchError(this.handleError)
+    );
+  }
 
 
 }
