@@ -2,17 +2,28 @@ package com.example.backend.Services;
 
 import com.example.backend.Entity.Client;
 import com.example.backend.Entity.ClientExcelData;
+import com.example.backend.Entity.ExportHistory;
 import com.example.backend.Entity.Supplier;
+import com.example.backend.Repositories.ExportHistoryRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class ExcelExportService {
+
+    private final ExportHistoryRepository exportHistoryRepository;
+
+    @Autowired
+    public ExcelExportService(ExportHistoryRepository exportHistoryRepository) {
+        this.exportHistoryRepository = exportHistoryRepository;
+    }
 
     public byte[] exportSuppliersToExcel(List<Supplier> suppliers) throws IOException {
         if (suppliers == null || suppliers.isEmpty()) {
@@ -51,7 +62,13 @@ public class ExcelExportService {
             }
 
             workbook.write(outputStream);
-            return outputStream.toByteArray();
+            byte[] excelBytes = outputStream.toByteArray();
+
+            // Save export history
+            String fileName = "suppliers_export_" + LocalDate.now() + ".xlsx";
+            saveExportHistory(fileName, excelBytes);
+
+            return excelBytes;
         }
     }
 
@@ -230,8 +247,21 @@ public class ExcelExportService {
             }
 
             workbook.write(outputStream);
-            return outputStream.toByteArray();
+            byte[] excelBytes = outputStream.toByteArray();
+
+            // Save export history
+            String fileName = sanitizeSheetName(supplier.getName()) + "_export_" + LocalDate.now() + ".xlsx";
+            saveExportHistory(fileName, excelBytes);
+
+            return excelBytes;
         }
     }
+    private void saveExportHistory(String fileName, byte[] fileContent) {
+        ExportHistory history = new ExportHistory();
+        history.setFileName(fileName);
+        history.setFileContent(fileContent);
+        exportHistoryRepository.save(history);  // Call save on the instance, not the class
+    }
+
 
 }

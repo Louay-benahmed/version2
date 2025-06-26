@@ -33,7 +33,6 @@ public class ExportController {
     @GetMapping("/suppliers-excel")
     public ResponseEntity<byte[]> exportSuppliersToExcel() {
         try {
-            // Fetch actual data from database
             List<Supplier> suppliers = supplierRepository.findAllWithClientsAndExcelData();
 
             if (suppliers.isEmpty()) {
