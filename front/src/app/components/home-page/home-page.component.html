@@ -303,7 +303,8 @@
             </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <!-- New Excel Export button -->
             <button class="btn btn-success" (click)="exportSupplierExcel()"
-                    [disabled]="!selectedSupplier?.id">
+                    [disabled]="!selectedSupplier?.id"
+                    style="position: relative; bottom: 8px">
               <i class="fas fa-file-excel"></i> Exporter en Excel
             </button>
 
