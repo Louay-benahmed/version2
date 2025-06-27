@@ -1,13 +1,14 @@
 import {Component, OnInit} from '@angular/core';
 import {NgIf, CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
-
 import { SupplierService } from '../../supplier.service';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
-
 import { Chart, registerables } from 'chart.js';
 import {FormsModule} from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { provideToastr } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
 Chart.register(...registerables);
 @Component({
   selector: 'app-database-page',
@@ -64,12 +65,12 @@ export class DatabasePageComponent implements OnInit{
   supplierExports: any[] = [];
   originalDatabaseExports: any[] = [];
   originalSupplierExports: any[] = [];
+  isExporting = false;
   constructor(
     private router: Router,
     private supplierService: SupplierService,
-    private sanitizer: DomSanitizer
-  ) {
-  }
+    private sanitizer: DomSanitizer, private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.initializeAvailableYears();
@@ -104,7 +105,20 @@ export class DatabasePageComponent implements OnInit{
       }
     });
   }
-
+  exportToExcel() {
+    this.isExporting = true;
+    this.supplierService.exportSuppliersToExcel().subscribe({
+      next: () => {
+        this.isExporting = false;
+        this.toastr.success('Export Excel terminé avec succès', 'Succès');
+      },
+      error: (err) => {
+        this.isExporting = false;
+        this.toastr.error('Erreur lors de l\'export Excel', 'Erreur');
+        console.error('Export error:', err);
+      }
+    });
+  }
   // For Database Exports (year only)
   filterDatabaseExports(): void {
     if (!this.selectedYear) {
