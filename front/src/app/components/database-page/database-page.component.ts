@@ -750,7 +750,51 @@ export class DatabasePageComponent implements OnInit{
     return 'Unknown Client';
   }
   protected readonly document = document;
+// Add these methods to your component class
 
+  viewExport(exportItem: any, type: 'database' | 'supplier'): void {
+    // Create a blob from the file content
+    const byteCharacters = atob(exportItem.fileContent);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = exportItem.fileName || `export_${new Date().getTime()}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  async confirmDeleteExport(exportItem: any, type: 'database' | 'supplier'): Promise<void> {
+    const confirmed = await this.confirmDelete(`Are you sure you want to delete this ${type} export?`);
+    if (!confirmed) return;
+
+    this.supplierService.deleteExport(exportItem.id).subscribe({
+      next: () => {
+        this.toastr.success('Export deleted successfully');
+        // Remove from the appropriate array
+        if (type === 'database') {
+          this.databaseExports = this.databaseExports.filter(e => e.id !== exportItem.id);
+          this.originalDatabaseExports = this.originalDatabaseExports.filter(e => e.id !== exportItem.id);
+        } else {
+          this.supplierExports = this.supplierExports.filter(e => e.id !== exportItem.id);
+          this.originalSupplierExports = this.originalSupplierExports.filter(e => e.id !== exportItem.id);
+        }
+      },
+      error: (err) => {
+        console.error('Error deleting export:', err);
+        this.toastr.error('Failed to delete export');
+      }
+    });
+  }
 
 }
 

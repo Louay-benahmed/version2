@@ -485,4 +485,29 @@ export class SupplierService {
       catchError(this.handleError)
     );
   }
+
+  // New method for deleting exports
+  deleteExport(exportId: number): Observable<void> {
+    const headers = this.getHeaders();
+    return this.http.delete<void>(`${this.apiUrlExport}/${exportId}`, {
+      headers: headers
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // New method for viewing/downloading export
+  downloadExport(exportId: number, fileName: string): Observable<Blob> {
+    const headers = this.getHeaders();
+    return this.http.get(`${this.apiUrlExport}/download/${exportId}`, {
+      headers: headers,
+      responseType: 'blob'
+    }).pipe(
+      tap((data: Blob) => {
+        saveAs(data, fileName);
+      }),
+      catchError(this.handleError)
+    );
+  }
+
 }
