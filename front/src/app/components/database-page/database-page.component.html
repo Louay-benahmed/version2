@@ -93,6 +93,7 @@
             <table class="table table-bordered">
               <thead>
               <tr>
+                <th>id</th>
                 <th>Nom du fichier</th>
                 <th>Date</th>
                 <th>Actions</th>
@@ -100,6 +101,7 @@
               </thead>
               <tbody>
               <tr *ngFor="let export of databaseExports">
+                <td>{{ export.id }}</td>
                 <td>{{ export.fileName }}</td>
                 <td>{{ export.creationDate | date }}</td>
                 <td>
@@ -123,6 +125,7 @@
             <table class="table table-bordered">
               <thead>
               <tr>
+                <th>id</th>
                 <th>Client</th>
                 <th>Nom du fichier</th>
                 <th>Date</th>
@@ -132,6 +135,7 @@
               <tbody>
               <tr *ngFor="let export of supplierExports">
                 <!-- <td>{{ getClientNameFromFileName(export.fileName) }}</td> -->
+                <td>{{ export.id }}</td>
                 <td>{{ getClientDisplayName(export) }}</td>
                 <td>{{ export.fileName }}</td>
                 <td>{{ export.creationDate | date }}</td>
