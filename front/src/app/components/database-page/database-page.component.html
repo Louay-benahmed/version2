@@ -52,7 +52,7 @@
 
             <div class="col-md-3">  <!-- Year select -->
               <select id="selectedYear" class="form-control"
-                      [(ngModel)]="selectedYear" (change)="filterByYear()">
+                      [(ngModel)]="selectedYear" (change)="onYearChange()">
                 <option *ngFor="let year of availableYears" [value]="year">{{year}}</option>
               </select>
             </div>
@@ -130,7 +130,7 @@
               <tbody>
               <tr *ngFor="let export of supplierExports">
                 <!-- <td>{{ getClientNameFromFileName(export.fileName) }}</td> -->
-                <td>{{ export.fileName }}</td>
+                <td>{{ getSupplierName(export.supplierId) || export.supplier?.name }}</td>
                 <td>{{ export.fileName }}</td>
                 <td>{{ export.creationDate | date }}</td>
                 <td>

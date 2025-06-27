@@ -90,8 +90,12 @@ export class DatabasePageComponent implements OnInit{
       next: ([dbExports, supplierExports]) => {
         this.originalDatabaseExports = dbExports;
         this.originalSupplierExports = supplierExports;
+
+        // Apply initial filters
         this.filterDatabaseExports();
-        this.filterSupplierExports();
+        this.filterClientExports();
+        console.log('Database exports:', dbExports);
+        console.log('Supplier exports:', supplierExports);
         this.isLoading = false;
       },
       error: (err) => {
@@ -101,7 +105,7 @@ export class DatabasePageComponent implements OnInit{
     });
   }
 
-  // Filter methods - completely unchanged
+  // For Database Exports (year only)
   filterDatabaseExports(): void {
     if (!this.selectedYear) {
       this.databaseExports = [...this.originalDatabaseExports];
@@ -113,6 +117,32 @@ export class DatabasePageComponent implements OnInit{
       const date = new Date(item.creationDate);
       return date.getUTCFullYear() === targetYear;
     });
+  }
+
+// For Client Exports (year + supplier)
+  filterClientExports(): void {
+    let filteredData = [...this.originalSupplierExports];
+
+    // Filter by year if selected
+    if (this.selectedYear) {
+      const targetYear = Number(this.selectedYear);
+      filteredData = filteredData.filter(item => {
+        const date = new Date(item.creationDate);
+        return date.getUTCFullYear() === targetYear;
+      });
+    }
+
+    // Filter by client if selected
+    if (this.selectedSupplierId) {
+      const supplier = this.suppliers.find(s => s.id === this.selectedSupplierId);
+      if (supplier) {
+        filteredData = filteredData.filter(item =>
+          item.supplierId === this.selectedSupplierId
+        );
+      }
+    }
+
+    this.supplierExports = filteredData;
   }
 
   filterSupplierExports(): void {
@@ -574,7 +604,7 @@ export class DatabasePageComponent implements OnInit{
   }
   // Add this method
   onSupplierChange(): void {
-    this.filterClientExportData(); // Only affects the second table
+    this.filterClientExports(); // Only affects client exports
   }
 
 // Update filterBySupplier to include validation
@@ -652,8 +682,8 @@ export class DatabasePageComponent implements OnInit{
   }
 // Update your existing year filter method
   onYearChange(): void {
-    this.filterExportHistoryByYear();
-    this.filterClientExportData();
+    this.filterDatabaseExports(); // Affects only database exports
+    this.filterClientExports();   // Affects client exports
   }
 
   protected readonly document = document;
