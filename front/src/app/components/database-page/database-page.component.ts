@@ -136,15 +136,29 @@ export class DatabasePageComponent implements OnInit{
     if (this.selectedSupplierId) {
       const supplier = this.suppliers.find(s => s.id === this.selectedSupplierId);
       if (supplier) {
-        filteredData = filteredData.filter(item =>
-          item.supplierId === this.selectedSupplierId
-        );
+        filteredData = filteredData.filter(item => {
+          // Check both possibilities:
+          // 1. Direct supplierId match (if available in data)
+          // 2. Filename pattern match
+          return (item.supplierId === this.selectedSupplierId) ||
+            (item.fileName?.toLowerCase().startsWith(supplier.name.toLowerCase() + '_'));
+        });
       }
     }
 
     this.supplierExports = filteredData;
   }
+  extractClientNameFromFileName(filename: string): string {
+    if (!filename) return '';
 
+    // Extract the part before the first underscore
+    const underscoreIndex = filename.indexOf('_');
+    if (underscoreIndex > 0) {
+      return filename.substring(0, underscoreIndex);
+    }
+
+    return filename; // fallback if no underscore found
+  }
   filterSupplierExports(): void {
     let filteredData = [...this.originalSupplierExports];
 
@@ -604,7 +618,21 @@ export class DatabasePageComponent implements OnInit{
   }
   // Add this method
   onSupplierChange(): void {
-    this.filterClientExports(); // Only affects client exports
+    console.log('Selected supplier ID:', this.selectedSupplierId);
+
+    if (this.selectedSupplierId) {
+      const supplier = this.suppliers.find(s => s.id === this.selectedSupplierId);
+      console.log('Selected supplier name:', supplier?.name);
+
+      // Log sample matching for debugging
+      const sampleExports = this.originalSupplierExports.slice(0, 3);
+      console.log('Sample exports:', sampleExports.map(e => ({
+        fileName: e.fileName,
+        matches: e.fileName?.toLowerCase().startsWith(supplier?.name?.toLowerCase() + '_')
+      })));
+    }
+
+    this.filterClientExports();
   }
 
 // Update filterBySupplier to include validation
@@ -685,7 +713,20 @@ export class DatabasePageComponent implements OnInit{
     this.filterDatabaseExports(); // Affects only database exports
     this.filterClientExports();   // Affects client exports
   }
+  getClientDisplayName(exportItem: any): string {
+    // First try to get from supplier ID
+    if (exportItem.supplierId) {
+      const name = this.getSupplierName(exportItem.supplierId);
+      if (name) return name;
+    }
 
+    // Then try to extract from filename
+    if (exportItem.fileName) {
+      return this.extractClientNameFromFileName(exportItem.fileName);
+    }
+
+    return 'Unknown Client';
+  }
   protected readonly document = document;
 
 

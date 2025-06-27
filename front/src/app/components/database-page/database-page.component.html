@@ -130,7 +130,7 @@
               <tbody>
               <tr *ngFor="let export of supplierExports">
                 <!-- <td>{{ getClientNameFromFileName(export.fileName) }}</td> -->
-                <td>{{ getSupplierName(export.supplierId) || export.supplier?.name }}</td>
+                <td>{{ getClientDisplayName(export) }}</td>
                 <td>{{ export.fileName }}</td>
                 <td>{{ export.creationDate | date }}</td>
                 <td>
