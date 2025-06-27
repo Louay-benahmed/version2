@@ -1,1 +1,274 @@
-<p>database-page works!</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice Management System</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.3/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<header style="background-color: #ccc; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+  <i class="app-title">&nbsp;&nbsp;&nbsp;&nbsp;Database Export</i>
+  <img
+    src="assets/images/SentinelDATA-navbar.png"
+    width="200"
+    height="150"
+    alt="Company Logo"
+    style="margin-right: 110px;"
+  />
+</header>
+
+
+
+<main class="app-container">
+  <section class="dashboard-section">
+    <div class="button-container">
+      <div class="d-flex gap-2 mb-3">
+        <button (click)="goToPage()" class="btn btn-primary" style="height: 40px;">
+          <i class="fas fa-home"></i> &nbsp;&nbsp;Accueil
+        </button>
+        <button (click)="goToReporting()" class="btn btn-success" style="height: 40px;">
+          <i class="fas fa-file-excel"></i> &nbsp;&nbsp;Exporter Excel
+        </button>
+
+        <div class="year-filter-container" style="margin-bottom: 20px;">
+          <div class="row">
+            <div class="col-md-5">  <!-- Supplier dropdown -->
+              <select class="form-control"
+                      [(ngModel)]="selectedSupplierId"
+                      (change)="onSupplierChange()">
+                <option [ngValue]="null">Tous les clients</option>
+                <option *ngFor="let supplier of suppliers"
+                        [ngValue]="supplier.id">
+                  {{ supplier.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-3">  <!-- Year select -->
+              <select id="selectedYear" class="form-control"
+                      [(ngModel)]="selectedYear" (change)="filterByYear()">
+                <option *ngFor="let year of availableYears" [value]="year">{{year}}</option>
+              </select>
+            </div>
+            <div class="col-md-4" style="display: flex; align-items: flex-end;">  <!-- Reset button -->
+              <button class="btn btn-secondary" (click)="resetYearFilter()">
+                <i class="fas fa-redo"></i> &nbsp;&nbsp;Année actuelle
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <h2 class="section-title">
+      <i class="fas fa-file-invoice"></i> Statuts des fichiers Exporter
+      <span *ngIf="isLoading" class="loading-indicator">Loading...</span>
+
+    </h2>
+    <div *ngIf="selectedSupplierId" class="alert alert-info mb-3">
+      <i class="fas fa-layer-group"></i>
+      Statuts de paiement des factures du :
+      <strong>
+        {{ getSelectedSupplierName() }} en {{ selectedYear }}
+      </strong>
+    </div>
+    <div class="row">
+      <!-- base de donner Exporter -->
+      <div class="col-md-6">
+        <div class="invoice-panel paid">
+          <div class="panel-header" style="z-index: 1; border-bottom: 2px solid #000;">
+            <h3><i class="fas fa-check-circle"></i> base de donner Exporter</h3>
+            <span class="badge">{{ paidFactures.length }}</span>
+          </div>
+          <div class="panel-content">
+            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+
+              <table class="table table-bordered">
+                <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">              <tr>
+                  <th style="background-color: #dee2e6">id</th>
+                  <th style="background-color: #dee2e6">date</th>
+                  <th style="background-color: #dee2e6">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let facture of paidFactures">
+                  <td>{{ facture.numero }}</td>
+                  <td>{{ facture.supplier?.email }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <!-- View Document -->
+                      <button (click)="viewDocument(facture.document)"
+                              class="btn btn-sm btn-primary"
+                              data-bs-toggle="modal"
+                              data-bs-target="#pdfModal"
+                              title="Afficher le PDF">
+                        <i class="fas fa-file-pdf"></i>
+                      </button>
+
+
+
+
+
+                      <!-- Delete -->
+                      <button (click)="deleteFacture(facture.facture_id)"
+                              class="btn btn-sm btn-danger"
+                              [disabled]="deletingFacture[facture.facture_id]"
+                              title="Supprimer">
+                        <i *ngIf="!deletingFacture[facture.facture_id]" class="fas fa-trash-alt"></i>
+                        <i *ngIf="deletingFacture[facture.facture_id]" class="fas fa-spinner fa-spin"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- donnes des clients  Exporter -->
+      <div class="col-md-6">
+        <div class="invoice-panel unpaid">
+          <div class="panel-header" style="z-index: 1; border-bottom: 2px solid #000;">
+            <h3><i class="fas fa-exclamation-circle"></i> donnes des clients  Exporter</h3>
+            <span class="badge">{{ unpaidFactures.length }}</span>
+          </div>
+
+          <div class="panel-content">
+            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+
+              <table class="table table-bordered">
+                <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">              <tr>
+                  <th style="background-color: #dee2e6 ">id</th>
+                  <th style="background-color: #dee2e6  ">Client</th>
+                  <th style="background-color: #dee2e6">date</th>
+                  <th style="background-color: #dee2e6">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let facture of unpaidFactures">
+                  <td>{{ facture.numero }}</td>
+                  <td>{{ facture.supplier?.name }}</td>
+                  <td>{{ facture.supplier?.email }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <!-- View Document -->
+                      <button (click)="viewDocument(facture.document)"
+                              class="btn btn-sm btn-primary"
+                              data-bs-toggle="modal"
+                              data-bs-target="#pdfModal"
+                              title="Afficher le PDF">
+                        <i class="fas fa-file-pdf"></i>
+                      </button>
+                      <!-- Delete -->
+                      <button (click)="deleteFacture(facture.facture_id)"
+                              class="btn btn-sm btn-danger"
+                              [disabled]="deletingFacture[facture.facture_id]"
+                              title="Supprimer">
+                        <i *ngIf="!deletingFacture[facture.facture_id]" class="fas fa-trash-alt"></i>
+                        <i *ngIf="deletingFacture[facture.facture_id]" class="fas fa-spinner fa-spin"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- PDF Viewer Modal -->
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="pdfModalLabel">Document Viewer</h4>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <iframe *ngIf="pdfSrc" [src]="pdfSrc" style="width: 100%; height: 500px;"></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+        <a *ngIf="pdfSrc" [href]="pdfSrc" download="document.pdf" class="btn btn-primary">
+          Download PDF
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Email Form (shown when showEmailForm is true) -->
+<div *ngIf="showEmailForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="relative px-4 py-10 bg-white mx-4 md:mx-0 shadow rounded-3xl sm:p-10 w-full max-w-md">
+    <div class="max-w-md mx-auto">
+      <div class="text-center font-semibold text-xl mb-5">Envoyer la facture par email</div>
+
+      <form (ngSubmit)="sendFactureByEmail()">
+        <div class="mt-4 mb-3 font-semibold text-sm">Destinataire :</div>
+        <div class="mb-8">
+          <input type="email"
+                 [value]="currentFacture?.supplier?.email"
+                 class="bg-gray-200 appearance-none border-2 border-gray-200 rounded-xl w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                 disabled>
+        </div>
+
+        <div class="mt-4 mb-3 font-semibold text-sm">Sujet :</div>
+        <div class="mb-8">
+          <input type="text"
+                 [(ngModel)]="emailSubject"
+                 name="emailSubject"
+                 class="bg-gray-200 appearance-none border-2 border-gray-200 rounded-xl w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                 required>
+        </div>
+
+        <div class="text-sm font-semibold mb-3">Message :</div>
+        <div>
+          <textarea [(ngModel)]="emailBody"
+                    name="emailBody"
+                    class="bg-gray-200 appearance-none border-2 border-gray-200 rounded-xl w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                    rows="5"
+                    required></textarea>
+        </div>
+
+        <div class="mt-6 mb-4 flex items-center justify-center gap-4">
+          <div *ngIf="sendingEmails[currentFacture?.facture_id]"
+               class="w-6 h-6 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin"></div>
+
+          <button type="submit"
+                  class="bg-blue-500 hover:bg-blue-600 font-bold text-white py-2 px-5 rounded-xl transition-colors"
+                  [disabled]="sendingEmails[currentFacture?.facture_id]">
+            <i class="fas fa-paper-plane mr-2"></i>Envoyer
+          </button>
+
+          <button type="button"
+                  (click)="showEmailForm = false"
+                  class="bg-gray-500 hover:bg-gray-600 font-bold text-white py-2 px-5 rounded-xl transition-colors">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

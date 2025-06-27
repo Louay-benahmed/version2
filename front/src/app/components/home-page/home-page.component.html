@@ -31,6 +31,13 @@
       <button class="btn btn-primary mb-3" (click)="goToPage()">
         <i class="fas fa-file-alt"></i>  Rapports
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+      <button class="btn btn-primary mb-3" (click)="goToDataBase()">
+        <i class="fas fa-file-alt"></i>  goToDataBase
+      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <button class="btn btn-primary mb-3" (click)="goToPayement()">
+        <i class="fas fa-file-alt"></i>  goTopayment
+      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <!-- Add the export button -->
       <button class="btn btn-info mb-3" (click)="exportToExcel()" [disabled]="isExporting">
         <i class="fas fa-file-excel"></i>

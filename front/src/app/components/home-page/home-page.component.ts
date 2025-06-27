@@ -222,6 +222,13 @@ export class HomePageComponent implements OnInit {
     this.router.navigate(['/management']);
   }
 
+  goToDataBase() {
+    this.router.navigate(['/database']);
+  }
+  goToPayement() {
+    this.router.navigate(['/payment']);
+  }
+
   async goToFacturePage(): Promise<void> {
     // First execute the payment chart function
     this.showSupplierPaymentChartclose();
