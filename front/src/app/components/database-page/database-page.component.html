@@ -50,9 +50,10 @@
               </select>
             </div>
 
-            <div class="col-md-3">  <!-- Year select -->
+            <div class="col-md-3">
               <select id="selectedYear" class="form-control"
-                      [(ngModel)]="selectedYear" (change)="onYearChange()">
+                      [(ngModel)]="selectedYear"
+                      (change)="filterByYear()">
                 <option *ngFor="let year of availableYears" [value]="year">{{year}}</option>
               </select>
             </div>

@@ -308,38 +308,46 @@ export class DatabasePageComponent implements OnInit{
 
 // Add these new methods for year filtering
 // In reporting-page.component.ts
+  // Replace your current filter methods with these:
+
   filterByYear(): void {
     if (!this.selectedYear) return;
 
-    // If a supplier is selected, filter the supplier-specific invoices
+    const targetYear = Number(this.selectedYear);
+    console.log(`Filtering for year: ${targetYear}`);
+
+    // Filter database exports (year only)
+    this.databaseExports = this.originalDatabaseExports.filter(item => {
+      if (!item.creationDate) return false;
+      const date = new Date(item.creationDate);
+      return date.getUTCFullYear() === targetYear;
+    });
+
+    // Filter client exports (year + optional supplier)
+    let clientExports = [...this.originalSupplierExports];
+    clientExports = clientExports.filter(item => {
+      if (!item.creationDate) return false;
+      const date = new Date(item.creationDate);
+      return date.getUTCFullYear() === targetYear;
+    });
+
+    // Apply additional supplier filter if selected
     if (this.selectedSupplierId) {
-      this.applyYearFilter();
+      const supplier = this.suppliers.find(s => s.id === this.selectedSupplierId);
+      if (supplier) {
+        clientExports = clientExports.filter(item =>
+          item.supplierId === this.selectedSupplierId ||
+          item.fileName?.toLowerCase().startsWith(supplier.name.toLowerCase() + '_')
+        );
+      }
     }
-    // Otherwise filter all invoices
-    else {
-      const targetYear = Number(this.selectedYear);
 
-      this.paidFactures = this.originalPaidFactures.filter(f => {
-        if (!f.dateCreation) return false;
-        const date = new Date(f.dateCreation);
-        return date.getUTCFullYear() === targetYear;
-      });
+    this.supplierExports = clientExports;
+  }
 
-      this.unpaidFactures = this.originalUnpaidFactures.filter(f => {
-        if (!f.dateCreation) return false;
-        const date = new Date(f.dateCreation);
-        return date.getUTCFullYear() === targetYear;
-      });
-    }
-  }  resetYearFilter(): void {
+  resetYearFilter(): void {
     this.selectedYear = new Date().getFullYear();
-    if (this.selectedSupplierId) {
-      // If supplier is selected, reload their invoices
-      this.filterBySupplier();
-    } else {
-      // Otherwise reload all invoices
-      this.filterByYear();
-    }
+    this.filterByYear();
   }
   filterByYear_BDC(): void {
     if (!this.selectedYear) return;
