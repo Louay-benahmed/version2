@@ -466,5 +466,23 @@ export class SupplierService {
     );
   }
 
+  // Add these methods to your existing SupplierService class
 
+  getDatabaseExports(): Observable<any[]> {
+    const headers = this.getHeaders();
+    return this.http.get<any[]>(`${this.apiUrlExport}/history/database-exports`, {
+      headers: headers
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getSupplierExports(): Observable<any[]> {
+    const headers = this.getHeaders();
+    return this.http.get<any[]>(`${this.apiUrlExport}/history/supplier-exports`, {
+      headers: headers
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
 }

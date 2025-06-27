@@ -65,7 +65,7 @@ public class ExcelExportService {
             byte[] excelBytes = outputStream.toByteArray();
 
             // Save export history
-            String fileName = "suppliers_export_" + LocalDate.now() + ".xlsx";
+            String fileName = "Base de données exportée le" + LocalDate.now() + ".xlsx";
             saveExportHistory(fileName, excelBytes);
 
             return excelBytes;

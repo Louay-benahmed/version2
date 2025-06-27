@@ -54,8 +54,16 @@ export class DatabasePageComponent implements OnInit{
   emailSubject: string = 'Facture';
   emailBody: string = 'Veuillez trouver ci-joint votre facture.';
   currentFacture: any = null;
-
-
+// Add these properties to your component
+  exportHistory: any[] = []; // For "base de donner Exporter"
+  clientExportData: any[] = []; // For "donnes des clients Exporter"
+  originalExportHistory: any[] = [];
+  originalClientExportData: any[] = [];
+// Component properties - changed to any[] to match service
+  databaseExports: any[] = [];
+  supplierExports: any[] = [];
+  originalDatabaseExports: any[] = [];
+  originalSupplierExports: any[] = [];
   constructor(
     private router: Router,
     private supplierService: SupplierService,
@@ -65,13 +73,108 @@ export class DatabasePageComponent implements OnInit{
 
   ngOnInit(): void {
     this.initializeAvailableYears();
-    this.loadSuppliers(); // Add this line
-    this.loadFactures();
-    this.loadBonDeCommandes();
+    this.loadSuppliers();
+    this.loadExportData(); // New method to load all export data
     console.log('Initial suppliers:', this.suppliers);
     console.log('Initial selectedSupplierId:', this.selectedSupplierId);
   }
+// New method to load export data
+// Load data method - unchanged except for type inference
+  loadExportData(): void {
+    this.isLoading = true;
 
+    forkJoin([
+      this.supplierService.getDatabaseExports(),
+      this.supplierService.getSupplierExports()
+    ]).subscribe({
+      next: ([dbExports, supplierExports]) => {
+        this.originalDatabaseExports = dbExports;
+        this.originalSupplierExports = supplierExports;
+        this.filterDatabaseExports();
+        this.filterSupplierExports();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading export data:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // Filter methods - completely unchanged
+  filterDatabaseExports(): void {
+    if (!this.selectedYear) {
+      this.databaseExports = [...this.originalDatabaseExports];
+      return;
+    }
+
+    const targetYear = Number(this.selectedYear);
+    this.databaseExports = this.originalDatabaseExports.filter(item => {
+      const date = new Date(item.creationDate);
+      return date.getUTCFullYear() === targetYear;
+    });
+  }
+
+  filterSupplierExports(): void {
+    let filteredData = [...this.originalSupplierExports];
+
+    // Filter by year if selected
+    if (this.selectedYear) {
+      const targetYear = Number(this.selectedYear);
+      filteredData = filteredData.filter(item => {
+        const date = new Date(item.creationDate);
+        return date.getUTCFullYear() === targetYear;
+      });
+    }
+
+    // Filter by client if selected
+    if (this.selectedSupplierId) {
+      // Assuming supplier name is part of the filename
+      const supplier = this.suppliers.find(s => s.id === this.selectedSupplierId);
+      if (supplier) {
+        filteredData = filteredData.filter(item =>
+          item.fileName.includes(supplier.name)
+        );
+      }
+    }
+
+    this.supplierExports = filteredData;
+  }
+  // Filter methods
+  filterExportHistoryByYear(): void {
+    if (!this.selectedYear) {
+      this.exportHistory = [...this.originalExportHistory];
+      return;
+    }
+
+    const targetYear = Number(this.selectedYear);
+    this.exportHistory = this.originalExportHistory.filter(item => {
+      const date = new Date(item.creationDate);
+      return date.getUTCFullYear() === targetYear;
+    });
+  }
+
+  filterClientExportData(): void {
+    let filteredData = [...this.originalClientExportData];
+
+    // Filter by year if selected
+    if (this.selectedYear) {
+      const targetYear = Number(this.selectedYear);
+      filteredData = filteredData.filter(item => {
+        const date = new Date(item.creationDate);
+        return date.getUTCFullYear() === targetYear;
+      });
+    }
+
+    // Filter by client if selected
+    if (this.selectedSupplierId) {
+      filteredData = filteredData.filter(item =>
+        item.supplierId === this.selectedSupplierId
+      );
+    }
+
+    this.clientExportData = filteredData;
+  }
   initializeAvailableYears(): void {
     const currentYear = new Date().getFullYear();
     this.availableYears = Array.from(
@@ -471,11 +574,7 @@ export class DatabasePageComponent implements OnInit{
   }
   // Add this method
   onSupplierChange(): void {
-    if (this.selectedSupplierId === null) {
-      this.loadFactures(); // Load all invoices when no supplier selected
-    } else {
-      this.filterBySupplier();
-    }
+    this.filterClientExportData(); // Only affects the second table
   }
 
 // Update filterBySupplier to include validation
@@ -551,7 +650,14 @@ export class DatabasePageComponent implements OnInit{
     );
     return supplier?.name || '';
   }
+// Update your existing year filter method
+  onYearChange(): void {
+    this.filterExportHistoryByYear();
+    this.filterClientExportData();
+  }
 
   protected readonly document = document;
+
+
 }
 

@@ -92,5 +92,17 @@ public class ExportController {
     public List<ExportHistory> getExportHistory() {
         return exportHistoryRepository.findAllByOrderByCreationDateDesc();
     }
+    @GetMapping("/history/database-exports")
+    public List<ExportHistory> getDatabaseExports() {
+        return exportHistoryRepository.findByFileNameStartingWithOrderByCreationDateDesc(
+                "Base de données exportée le"
+        );
+    }
 
+    @GetMapping("/history/supplier-exports")
+    public List<ExportHistory> getSupplierExports() {
+        return exportHistoryRepository.findByFileNameNotStartingWithOrderByCreationDateDesc(
+                "Base de données exportée le"
+        );
+    }
 }
