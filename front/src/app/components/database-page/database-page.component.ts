@@ -9,6 +9,8 @@ import { forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 Chart.register(...registerables);
 @Component({
   selector: 'app-database-page',
@@ -66,6 +68,12 @@ export class DatabasePageComponent implements OnInit{
   originalDatabaseExports: any[] = [];
   originalSupplierExports: any[] = [];
   isExporting = false;
+  // Add to your component properties
+  excelData: any = null;
+  currentExport: any = null;
+  isLoadingExcel: boolean = false;
+  excelModalVisible: boolean = false;
+
   constructor(
     private router: Router,
     private supplierService: SupplierService,
@@ -752,8 +760,74 @@ export class DatabasePageComponent implements OnInit{
   protected readonly document = document;
 // Add these methods to your component class
 
-  viewExport(exportItem: any, type: 'database' | 'supplier'): void {
-    // Create a blob from the file content
+  async viewExport(exportItem: any, type: 'database' | 'supplier'): Promise<void> {
+    this.currentExport = exportItem;
+    this.excelData = null;
+    this.isLoadingExcel = true;
+    this.excelModalVisible = true;
+
+    try {
+      const byteCharacters = atob(exportItem.fileContent);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      // Parse the Excel file
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(byteArray);
+
+      // Get the first worksheet
+      const worksheet = workbook.worksheets[0];
+
+      // Get actual used range (alternative method)
+      const dimensions = worksheet.dimensions;
+      const colCount = dimensions ? dimensions.right - dimensions.left + 1 : 0;
+
+      // Extract headers
+      const headers = [];
+      if (worksheet.rowCount > 0) {
+        const headerRow = worksheet.getRow(1);
+        for (let col = 1; col <= colCount; col++) {
+          const cell = headerRow.getCell(col);
+          headers.push(cell.text || ''); // Empty string instead of 'Column X'
+        }
+      }
+
+      // Extract data rows
+      const rows = [];
+      for (let rowNum = 2; rowNum <= worksheet.rowCount; rowNum++) {
+        const row = [];
+        const currentRow = worksheet.getRow(rowNum);
+        for (let col = 1; col <= colCount; col++) {
+          const cell = currentRow.getCell(col);
+          row.push(cell.text || '');
+        }
+        rows.push(row);
+      }
+
+      this.excelData = {
+        headers: headers,
+        rows: rows,
+        fileName: exportItem.fileName
+      };
+    } catch (error) {
+      console.error('Error parsing Excel file:', error);
+      this.toastr.error('Could not parse Excel file, downloading instead');
+      this.downloadExcel(exportItem);
+      this.excelModalVisible = false;
+    } finally {
+      this.isLoadingExcel = false;
+    }
+  }  downloadCurrentExcel(): void {
+    if (this.currentExport) {
+      this.downloadExcel(this.currentExport);
+    }
+    this.excelModalVisible = false;
+  }
+
+  private downloadExcel(exportItem: any): void {
     const byteCharacters = atob(exportItem.fileContent);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
@@ -762,15 +836,13 @@ export class DatabasePageComponent implements OnInit{
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-    // Create download link
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = exportItem.fileName || `export_${new Date().getTime()}.xlsx`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    saveAs(blob, exportItem.fileName || `export_${new Date().getTime()}.xlsx`);
+  }
+
+  closeExcelModal(): void {
+    this.excelModalVisible = false;
+    this.excelData = null;
+    this.currentExport = null;
   }
 
   async confirmDeleteExport(exportItem: any, type: 'database' | 'supplier'): Promise<void> {

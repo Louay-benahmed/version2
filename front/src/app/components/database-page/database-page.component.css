@@ -400,3 +400,29 @@ body {
   font-weight: 550;
   color: #495057;
 }
+/* Excel Viewer Styles */
+.modal-xl {
+  max-width: 90%;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+table th {
+  background-color: #f8f9fa;
+  position: sticky;
+  top: 0;
+}
+
+table td, table th {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
