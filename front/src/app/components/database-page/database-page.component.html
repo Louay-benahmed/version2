@@ -165,13 +165,45 @@
 
 </main>
 
-<!-- Excel Viewer Modal -->
-<!-- Excel Viewer Modal -->
-<div *ngIf="excelModalVisible" class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+<!-- Sheet Selection UI -->
+<div *ngIf="excelData?.multipleSheets" class="sheet-selection p-3">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Select Sheet - {{excelData?.fileName}}</h4>
+          <button type="button" class="close" (click)="closeExcelModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="list-group">
+            <button *ngFor="let sheet of excelData.sheets"
+                    (click)="onSheetSelected(sheet.index)"
+                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                    [disabled]="isLoadingExcel">
+              {{sheet.name}}
+              <span *ngIf="isLoadingExcel" class="spinner-border spinner-border-sm"></span>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Excel Data Viewer Modal -->
+<div *ngIf="excelModalVisible && !excelData?.multipleSheets" class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Excel Viewer - {{excelData?.fileName}}</h4>
+        <h4 class="modal-title">
+          Excel Viewer - {{excelData?.fileName}}
+          <span *ngIf="excelData?.sheetName" class="text-muted small ml-2">(Sheet: {{excelData?.sheetName}})</span>
+        </h4>
         <button type="button" class="close" (click)="closeExcelModal()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -186,12 +218,14 @@
           <table class="table table-bordered table-striped">
             <thead>
             <tr>
-              <th *ngFor="let header of excelData.headers; let i = index">{{header}}</th>
+              <th *ngFor="let header of excelData.headers">
+                {{header}}
+              </th>
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let row of excelData.rows">
-              <td *ngFor="let cell of row; let i = index">
+            <tr *ngFor="let row of excelData.rows; let i = index">
+              <td *ngFor="let cell of row; let j = index">
                 {{cell}}
               </td>
             </tr>
@@ -200,6 +234,12 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button *ngIf="excelData?.sheets?.length > 1"
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="showSheetSelector()">
+          <i class="fas fa-file-alt"></i> Switch Sheet
+        </button>
         <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Close</button>
         <button type="button" class="btn btn-primary" (click)="downloadCurrentExcel()" [disabled]="!excelData">
           <i class="fas fa-download"></i> Download

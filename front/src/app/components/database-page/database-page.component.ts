@@ -760,6 +760,8 @@ export class DatabasePageComponent implements OnInit{
   protected readonly document = document;
 // Add these methods to your component class
 
+// Update your viewExport method to store the workbook
+// Update the viewExport method to use it
   async viewExport(exportItem: any, type: 'database' | 'supplier'): Promise<void> {
     this.currentExport = exportItem;
     this.excelData = null;
@@ -774,44 +776,19 @@ export class DatabasePageComponent implements OnInit{
       }
       const byteArray = new Uint8Array(byteNumbers);
 
-      // Parse the Excel file
-      const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(byteArray);
+      // Parse and store the workbook
+      this.workbook = new ExcelJS.Workbook();
+      await this.workbook.xlsx.load(byteArray);
 
-      // Get the first worksheet
-      const worksheet = workbook.worksheets[0];
-
-      // Get actual used range (alternative method)
-      const dimensions = worksheet.dimensions;
-      const colCount = dimensions ? dimensions.right - dimensions.left + 1 : 0;
-
-      // Extract headers
-      const headers = [];
-      if (worksheet.rowCount > 0) {
-        const headerRow = worksheet.getRow(1);
-        for (let col = 1; col <= colCount; col++) {
-          const cell = headerRow.getCell(col);
-          headers.push(cell.text || ''); // Empty string instead of 'Column X'
+      // Handle multiple sheets
+      if (this.workbook.worksheets.length > 1) {
+        this.showSheetSelector(this.workbook); // Pass the workbook
+      } else {
+        const firstSheet = this.workbook.worksheets[0];
+        if (firstSheet) {
+          this.processWorksheet(firstSheet, exportItem.fileName);
         }
       }
-
-      // Extract data rows
-      const rows = [];
-      for (let rowNum = 2; rowNum <= worksheet.rowCount; rowNum++) {
-        const row = [];
-        const currentRow = worksheet.getRow(rowNum);
-        for (let col = 1; col <= colCount; col++) {
-          const cell = currentRow.getCell(col);
-          row.push(cell.text || '');
-        }
-        rows.push(row);
-      }
-
-      this.excelData = {
-        headers: headers,
-        rows: rows,
-        fileName: exportItem.fileName
-      };
     } catch (error) {
       console.error('Error parsing Excel file:', error);
       this.toastr.error('Could not parse Excel file, downloading instead');
@@ -820,7 +797,75 @@ export class DatabasePageComponent implements OnInit{
     } finally {
       this.isLoadingExcel = false;
     }
-  }  downloadCurrentExcel(): void {
+  }
+// New helper method to process a single worksheet
+  private processWorksheet(worksheet: ExcelJS.Worksheet, fileName: string): void {
+    // Get actual column count by checking the first row
+    const firstRow = worksheet.getRow(1);
+    const colCount = firstRow.actualCellCount;
+
+    // Extract headers (keep empty if no header text)
+    const headers = [];
+    if (worksheet.rowCount > 0) {
+      for (let col = 1; col <= colCount; col++) {
+        const cell = firstRow.getCell(col);
+        headers.push(cell.text || '');
+      }
+    }
+
+    // Extract data rows
+    const rows = [];
+    for (let rowNum = 2; rowNum <= worksheet.rowCount; rowNum++) {
+      const row = [];
+      const currentRow = worksheet.getRow(rowNum);
+      for (let col = 1; col <= colCount; col++) {
+        const cell = currentRow.getCell(col);
+        row.push(cell.text || '');
+      }
+      rows.push(row);
+    }
+
+    this.excelData = {
+      headers: headers,
+      rows: rows,
+      fileName: fileName,
+      sheetName: worksheet.name
+    };
+  }
+
+// Option 1: Show sheet selector to user
+  public showSheetSelector(workbook?: ExcelJS.Workbook): void {
+    // Use the stored workbook if none provided
+    const targetWorkbook = workbook || this.workbook;
+    if (!targetWorkbook) return;
+
+    this.excelData = {
+      multipleSheets: true,
+      sheets: targetWorkbook.worksheets.map(sheet => ({
+        name: sheet.name,
+        index: sheet.id
+      })),
+      fileName: this.currentExport?.fileName || 'Export'
+    };
+    this.isLoadingExcel = false;
+  }
+// Add this property to your component class
+  private workbook?: ExcelJS.Workbook;
+// Call this when user selects a sheet
+  // Update your onSheetSelected method with proper type checking
+  public onSheetSelected(sheetId: number): void {
+    // You'll need to have stored the workbook reference or re-parse it
+    const selectedSheet = this.workbook?.getWorksheet(sheetId);
+
+    if (!selectedSheet) {
+      this.toastr.error('Selected sheet not found');
+      return;
+    }
+
+    this.processWorksheet(selectedSheet, this.currentExport.fileName);
+  }
+
+  downloadCurrentExcel(): void {
     if (this.currentExport) {
       this.downloadExcel(this.currentExport);
     }
