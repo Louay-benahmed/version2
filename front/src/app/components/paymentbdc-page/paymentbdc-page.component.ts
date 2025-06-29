@@ -47,6 +47,7 @@ export class PaymentbdcPageComponent implements OnInit {
   commandeEmailSubject: string = 'Bon de Commande';
   commandeEmailBody: string = 'Veuillez trouver ci-joint votre bon de commande.';
   currentCommande: any = null;
+  showPaidCommandes: boolean = false; // Initial state shows paid commandes
 
 
 
@@ -153,6 +154,9 @@ export class PaymentbdcPageComponent implements OnInit {
     });
   }
 
+  toggleBonDeCommandeVisibility() {
+    this.showPaidCommandes = !this.showPaidCommandes;
+  }
 // Add these new methods for year filtering
 // In reporting-page.component.ts
   filterByYear(): void {

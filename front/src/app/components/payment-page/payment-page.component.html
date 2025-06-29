@@ -32,8 +32,13 @@
         <button (click)="goToPage()" class="btn btn-primary" style="height: 40px;">
           <i class="fas fa-home"></i> &nbsp;&nbsp;Accueil
         </button>
-        <button (click)="goToReporting()" class="btn btn-success" style="height: 40px;">
-          <i class="fas fa-chart-bar"></i> &nbsp;&nbsp;Dashboard
+        <button
+          (click)="toggleInvoiceVisibility()"
+          class="btn"
+          [ngClass]="showUnpaid ? 'btn-danger' : 'btn-success'"
+          style="height: 40px;">
+          <i class="fas" [class.fa-times-circle]="showUnpaid" [class.fa-check-circle]="!showUnpaid"></i> &nbsp;&nbsp;
+          {{ showUnpaid ? 'Afficher impayées' : 'Afficher payées' }}
         </button>
         <button (click)="goTobdc()" class="btn btn-warning" style="height: 40px;">
           <i class="fas fa-file-alt"></i> &nbsp;&nbsp;Statut du bon de commande
@@ -81,7 +86,7 @@
       </strong>
     </div>
     <!-- Unpaid Invoices - Now comes first -->
-    <div class="row">
+    <div class="row" *ngIf="!showUnpaid">
       <div class="col-md-12">
         <div class="invoice-panel unpaid">
           <div class="panel-header" style="z-index: 1; border-bottom: 2px solid #000;">
@@ -166,7 +171,7 @@
     </div>
 
     <!-- Paid Invoices - Now comes after unpaid invoices -->
-    <div class="row mt-4">
+    <div class="row mt-4" *ngIf="showUnpaid">
       <div class="col-md-12">
         <div class="invoice-panel paid">
           <div class="panel-header" style="z-index: 1; border-bottom: 2px solid #000;">

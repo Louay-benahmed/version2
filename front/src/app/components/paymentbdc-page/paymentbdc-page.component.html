@@ -32,8 +32,13 @@
         <button (click)="goToPage()" class="btn btn-primary" style="height: 40px;">
           <i class="fas fa-home"></i> &nbsp;&nbsp;Accueil
         </button>
-        <button (click)="goToReporting()" class="btn btn-success" style="height: 40px;">
-          <i class="fas fa-chart-bar"></i> &nbsp;&nbsp;Dashboard
+        <button
+          (click)="toggleBonDeCommandeVisibility()"
+          class="btn"
+          [ngClass]="showPaidCommandes ? 'btn-danger' : 'btn-success'"
+          style="height: 40px;">
+          <i class="fas" [class.fa-times-circle]="showPaidCommandes" [class.fa-check-circle]="!showPaidCommandes"></i> &nbsp;&nbsp;
+          {{ showPaidCommandes ? 'Afficher impayées' : 'Afficher payées' }}
         </button>
         <button (click)="goTofacture()" class="btn btn-warning" style="height: 40px;">
           <i class="fas fa-file-alt"></i> &nbsp;&nbsp;Statut des factures
@@ -79,7 +84,7 @@
       <strong>{{ selectedWholesaler }}</strong> en <strong>{{ selectedYear }}</strong>
     </div>
     <!-- Unpaid Purchase Orders - Now comes first -->
-    <div class="row">
+    <div class="row" *ngIf="!showPaidCommandes">
       <div class="col-md-12">
         <div class="invoice-panel unpaid">
           <div class="panel-header" style="z-index: 1; border-bottom: 2px solid #000;">
@@ -161,7 +166,7 @@
     </div>
 
     <!-- Paid Purchase Orders - Now comes second -->
-    <div class="row" style="margin-top: 30px;">
+    <div class="row" style="margin-top: 30px;" *ngIf="showPaidCommandes">
       <div class="col-md-12">
         <div class="invoice-panel paid">
           <div class="panel-header" style="z-index: 1; border-bottom: 2px solid #000;">

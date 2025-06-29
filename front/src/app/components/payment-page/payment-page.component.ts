@@ -53,8 +53,12 @@ export class PaymentPageComponent implements OnInit {
   emailSubject: string = 'Facture';
   emailBody: string = 'Veuillez trouver ci-joint votre facture.';
   currentFacture: any = null;
+  // Use only one variable to control the state
+  showUnpaid: boolean = false; // false = showing paid invoices (initial state)
 
-
+  toggleInvoiceVisibility() {
+    this.showUnpaid = !this.showUnpaid;
+  }
   constructor(
     private router: Router,
     private supplierService: SupplierService,
@@ -157,6 +161,7 @@ export class PaymentPageComponent implements OnInit {
       }
     });
   }
+
 
 // Add these new methods for year filtering
 // In reporting-page.component.ts
