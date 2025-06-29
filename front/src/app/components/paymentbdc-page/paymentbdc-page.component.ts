@@ -7,20 +7,19 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 import { Chart, registerables } from 'chart.js';
 import {FormsModule} from '@angular/forms';
-import { forkJoin } from 'rxjs';
 Chart.register(...registerables);
 @Component({
-  selector: 'app-payment-page',
+  selector: 'app-paymentbdc-page',
   standalone: true,
   imports: [
     NgIf,
     FormsModule,
     CommonModule
   ],
-  templateUrl: './payment-page.component.html',
-  styleUrl: './payment-page.component.css'
+  templateUrl: './paymentbdc-page.component.html',
+  styleUrl: './paymentbdc-page.component.css'
 })
-export class PaymentPageComponent implements OnInit {
+export class PaymentbdcPageComponent implements OnInit {
   paidFactures: any[] = [];
   unpaidFactures: any[] = [];
   isLoading = true;
@@ -43,16 +42,13 @@ export class PaymentPageComponent implements OnInit {
   originalPaidBonDeCommandes: any[] = [];
   originalUnpaidBonDeCommandes: any[] = [];
 
+  // Add these properties to your component
+  showCommandeEmailForm: boolean = false;
+  commandeEmailSubject: string = 'Bon de Commande';
+  commandeEmailBody: string = 'Veuillez trouver ci-joint votre bon de commande.';
+  currentCommande: any = null;
 
-// Add these properties to your component class
-  clientEmail: string | undefined; // Should be populated with the client's email
-  factureId: number | undefined; // Should be populated with the invoice ID
-  currentDocument: string = ''; // To store the document content
-  // Add these properties
-  showEmailForm: boolean = false;
-  emailSubject: string = 'Facture';
-  emailBody: string = 'Veuillez trouver ci-joint votre facture.';
-  currentFacture: any = null;
+
 
 
   constructor(
@@ -64,12 +60,11 @@ export class PaymentPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeAvailableYears();
-    this.loadSuppliers(); // Add this line
     this.loadFactures();
     this.loadBonDeCommandes();
-    console.log('Initial suppliers:', this.suppliers);
-    console.log('Initial selectedSupplierId:', this.selectedSupplierId);
+    this.loadWholesalers();
   }
+
 
   initializeAvailableYears(): void {
     const currentYear = new Date().getFullYear();
@@ -163,70 +158,36 @@ export class PaymentPageComponent implements OnInit {
   filterByYear(): void {
     if (!this.selectedYear) return;
 
-    // If a supplier is selected, filter the supplier-specific invoices
-    if (this.selectedSupplierId) {
-      this.applyYearFilter();
-    }
-    // Otherwise filter all invoices
-    else {
-      const targetYear = Number(this.selectedYear);
-
-      this.paidFactures = this.originalPaidFactures.filter(f => {
-        if (!f.dateCreation) return false;
-        const date = new Date(f.dateCreation);
-        return date.getUTCFullYear() === targetYear;
-      });
-
-      this.unpaidFactures = this.originalUnpaidFactures.filter(f => {
-        if (!f.dateCreation) return false;
-        const date = new Date(f.dateCreation);
-        return date.getUTCFullYear() === targetYear;
-      });
-    }
-  }  resetYearFilter(): void {
-    this.selectedYear = new Date().getFullYear();
-    if (this.selectedSupplierId) {
-      // If supplier is selected, reload their invoices
-      this.filterBySupplier();
-    } else {
-      // Otherwise reload all invoices
-      this.filterByYear();
-    }
-  }
-  filterByYear_BDC(): void {
-    if (!this.selectedYear) return;
-
     const targetYear = Number(this.selectedYear);
+    console.log(`Filtering for year: ${targetYear}`);
 
+    // Improved date filtering that handles timezones
     const filterByYear = (items: any[]): any[] => {
       return items.filter(item => {
         if (!item.dateCreation) return false;
+
+        // Handle both string and Date objects
         const date = new Date(item.dateCreation);
-        return date.getUTCFullYear() === targetYear;
+        return date.getUTCFullYear() === targetYear; // Use UTC to avoid timezone issues
       });
     };
 
-    // If a supplier is selected, filter the already loaded supplier invoices
-    if (this.selectedSupplierId) {
-      this.paidFactures = filterByYear(this.paidFactures);
-      this.unpaidFactures = filterByYear(this.unpaidFactures);
-    } else {
-      // Normal year filtering for all invoices
-      this.paidFactures = filterByYear(this.originalPaidFactures);
-      this.unpaidFactures = filterByYear(this.originalUnpaidFactures);
-      this.paidBonDeCommandes = filterByYear(this.originalPaidBonDeCommandes);
-      this.unpaidBonDeCommandes = filterByYear(this.originalUnpaidBonDeCommandes);
-    }
+    this.paidFactures = filterByYear(this.originalPaidFactures);
+    this.unpaidFactures = filterByYear(this.originalUnpaidFactures);
+    this.paidBonDeCommandes = filterByYear(this.originalPaidBonDeCommandes);
+    this.unpaidBonDeCommandes = filterByYear(this.originalUnpaidBonDeCommandes);
+
+    console.log('Filtered counts:', {
+      paidFactures: this.paidFactures.length,
+      unpaidFactures: this.unpaidFactures.length,
+      paidBonDeCommandes: this.paidBonDeCommandes.length,
+      unpaidBonDeCommandes: this.unpaidBonDeCommandes.length
+    });
+
   }
-  resetYearFilter_BDC(): void {
-    this.selectedYear = new Date().getFullYear();
-    if (this.selectedSupplierId) {
-      // If supplier is selected, reload their invoices
-      this.filterBySupplier();
-    } else {
-      // Otherwise reload all invoices
-      this.filterByYear();
-    }
+  resetYearFilter(): void {
+    this.selectedYear = new Date().getFullYear(); // Reset to current year
+    this.filterByYear();
   }
 
 
@@ -239,8 +200,8 @@ export class PaymentPageComponent implements OnInit {
   goToReporting(): void {
     this.router.navigate(['/reporting']);
   }
-  goTobdc(): void {
-    this.router.navigate(['/paymentbdc']);
+  goTofacture(): void {
+    this.router.navigate(['/payment']);
   }
   viewDocument(documentBase64: string): void {
     const byteCharacters = atob(documentBase64);
@@ -266,49 +227,18 @@ export class PaymentPageComponent implements OnInit {
 
   sendingEmails: {[key: number]: boolean} = {};
 
-  // Update your send method
-// Method to open email form
-  openEmailForm(facture: any) {
-    this.currentFacture = facture;
-    // Reset form fields to defaults when opening
-    this.emailSubject = 'Facture';
-    this.emailBody = 'Veuillez trouver ci-joint votre facture.';
-    this.showEmailForm = true;
-  }
-
-// Method to send email
-  sendFactureByEmail() {
-    if (!this.currentFacture) return;
-
-    const document = this.currentFacture.document;
-    const email = this.currentFacture.supplier?.email;
-    const factureId = this.currentFacture.facture_id;
-
+  sendFactureByEmail(document: string, email: string | undefined, factureId: number) {
     if (!email) {
-      alert('Aucune adresse e-mail disponible pour ce fournisseur');
-      return;
-    }
-
-    if (!this.emailSubject || !this.emailBody) {
-      alert('Veuillez saisir un sujet et un corps pour l\'email');
+      alert('Aucune adresse e-mail disponible pour ce Client');
       return;
     }
 
     this.sendingEmails[factureId] = true;
 
-    this.supplierService.sendFactureByEmailaa(
-      document,
-      email,
-      this.emailSubject,
-      this.emailBody
-    ).subscribe({
+    this.supplierService.sendFactureByEmail(document, email).subscribe({
       next: () => {
         this.sendingEmails[factureId] = false;
         alert(`Facture envoyée avec succès à ${email}`);
-        this.showEmailForm = false;
-        // Reset form fields to defaults when opening
-        this.emailSubject = 'Facture';
-        this.emailBody = 'Veuillez trouver ci-joint votre facture.';
       },
       error: (err) => {
         this.sendingEmails[factureId] = false;
@@ -319,8 +249,22 @@ export class PaymentPageComponent implements OnInit {
   }
 
 
+  // Method to open email form
+  openCommandeEmailForm(commande: any) {
+    this.currentCommande = commande;
+    this.commandeEmailSubject = 'Bon de Commande';
+    this.commandeEmailBody = 'Veuillez trouver ci-joint votre bon de commande.';
+    this.showCommandeEmailForm = true;
+  }
 
-  sendBonDeCommandeByEmail(document: string, email: string | undefined, commandeId: number) {
+// Method to send email
+  sendBonDeCommandeByEmail() {
+    if (!this.currentCommande) return;
+
+    const document = this.currentCommande.document;
+    const email = this.currentCommande.client?.email;
+    const commandeId = this.currentCommande.id;
+
     if (!email) {
       alert('Aucune adresse email disponible pour ce Grossiste');
       return;
@@ -328,10 +272,16 @@ export class PaymentPageComponent implements OnInit {
 
     this.sendingBonDeCommandeEmails[commandeId] = true;
 
-    this.supplierService.sendBonDeCommandeByEmail(document, email).subscribe({
+    this.supplierService.sendBonDeCommandeByEmailaa(
+      document,
+      email,
+      this.commandeEmailSubject,
+      this.commandeEmailBody
+    ).subscribe({
       next: () => {
         this.sendingBonDeCommandeEmails[commandeId] = false;
         alert(`Bon de commande envoyé avec succès à ${email}`);
+        this.showCommandeEmailForm = false;
       },
       error: (err) => {
         this.sendingBonDeCommandeEmails[commandeId] = false;
@@ -339,6 +289,11 @@ export class PaymentPageComponent implements OnInit {
         alert('Échec de l\'envoi de l\'e-mail: ' + (err.message || 'Erreur inconnue'));
       }
     });
+  }
+
+// Method to cancel email
+  cancelCommandeEmail() {
+    this.showCommandeEmailForm = false;
   }
 
   toggleFacturePayment(factureId: number, newStatus: boolean): void {
@@ -450,107 +405,56 @@ export class PaymentPageComponent implements OnInit {
       }
     });
   }
-  // Add with other properties
-  suppliers: any[] = [];
-  selectedSupplierId: number | null = null;
-  isLoadingSuppliers: boolean = false;
-  // Add after ngOnInit()
-  loadSuppliers(): void {
-    this.isLoadingSuppliers = true;
-    this.supplierService.getSuppliers().subscribe({
-      next: (suppliers) => {
-        this.suppliers = suppliers;
-        this.isLoadingSuppliers = false;
+  selectedWholesaler: string = '';
+  availableWholesalers: string[] = [];
+  // ... rest of your existing properties
+
+
+  loadWholesalers(): void {
+    this.supplierService.getAllBonDeCommandes().subscribe({
+      next: (commandes) => {
+        // Extract unique wholesaler names
+        this.availableWholesalers = [...new Set(
+          commandes.map(c => c.client?.name).filter(name => name)
+        )].sort();
       },
       error: (err) => {
-        console.error('Error loading suppliers:', err);
-        this.isLoadingSuppliers = false;
-      }
-    });
-  }
-  // Add this method
-  onSupplierChange(): void {
-    if (this.selectedSupplierId === null) {
-      this.loadFactures(); // Load all invoices when no supplier selected
-    } else {
-      this.filterBySupplier();
-    }
-  }
-
-// Update filterBySupplier to include validation
-  filterBySupplier(): void {
-    const selectedSupplier = this.suppliers.find(s =>
-      s.supplier_id === this.selectedSupplierId || s.id === this.selectedSupplierId
-    );
-    console.log('Selected Supplier:', selectedSupplier);
-
-    if (this.selectedSupplierId === null || this.selectedSupplierId === undefined || isNaN(this.selectedSupplierId)) {
-      console.error('Invalid supplier ID:', this.selectedSupplierId);
-      return;
-    }
-
-    this.isLoading = true;
-
-    forkJoin([
-      this.supplierService.getPaidFacturesBySupplier(+this.selectedSupplierId),
-      this.supplierService.getUnpaidFacturesBySupplier(+this.selectedSupplierId)
-    ]).subscribe({
-      next: ([paidFactures, unpaidFactures]) => {
-        // Store the supplier-filtered invoices
-        this.originalPaidFactures = paidFactures;
-        this.originalUnpaidFactures = unpaidFactures;
-
-        // Apply year filter if one is selected
-        if (this.selectedYear) {
-          this.applyYearFilter();
-        } else {
-          this.paidFactures = paidFactures;
-          this.unpaidFactures = unpaidFactures;
-        }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading supplier invoices:', err);
-        this.isLoading = false;
+        console.error('Error loading wholesalers:', err);
       }
     });
   }
 
-// New helper method
-  private applyYearFilter(): void {
+// Add these properties to your component
+  selectedClientName: string = '';
+  selectedYearDisplay: string = '';
+
+// Modify your applyFilters() method
+  applyFilters(): void {
     if (!this.selectedYear) return;
 
     const targetYear = Number(this.selectedYear);
+    const targetWholesaler = this.selectedWholesaler;
 
-    this.paidFactures = this.originalPaidFactures.filter(f => {
-      if (!f.dateCreation) return false;
-      const date = new Date(f.dateCreation);
-      return date.getUTCFullYear() === targetYear;
-    });
+    // Filtering logic remains the same...
+    const filterItems = (items: any[]): any[] => {
+      return items.filter(item => {
+        const date = new Date(item.dateCreation);
+        const yearMatch = date.getUTCFullYear() === targetYear;
+        const wholesalerMatch = !targetWholesaler ||
+          (item.client?.name === targetWholesaler);
+        return yearMatch && wholesalerMatch;
+      });
+    };
 
-    this.unpaidFactures = this.originalUnpaidFactures.filter(f => {
-      if (!f.dateCreation) return false;
-      const date = new Date(f.dateCreation);
-      return date.getUTCFullYear() === targetYear;
-    });
+    this.paidBonDeCommandes = filterItems(this.originalPaidBonDeCommandes);
+    this.unpaidBonDeCommandes = filterItems(this.originalUnpaidBonDeCommandes);
   }
-  clearSupplierFilter(): void {
-    this.selectedSupplierId = null;
-    this.loadFactures(); // Reload all invoices
-  }
-
-  getSupplierName(supplierId: number): string {
-    const supplier = this.suppliers.find(s => s.supplier_id === supplierId);
-    return supplier ? supplier.name : '';
-  }
-  getSelectedSupplierName(): string {
-    if (!this.selectedSupplierId) return '';
-    const supplier = this.suppliers.find(s =>
-      s.supplier_id === this.selectedSupplierId || s.id === this.selectedSupplierId
-    );
-    return supplier?.name || '';
+  resetFilters(): void {
+    this.selectedYear = new Date().getFullYear();
+    this.selectedYearDisplay = this.selectedYear.toString();
+    this.selectedWholesaler = '';
+    this.selectedClientName = 'Tous les grossistes';
+    this.applyFilters();
   }
 
-  protected readonly document = document;
 }
-

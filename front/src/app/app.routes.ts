@@ -10,6 +10,9 @@ import {FacturePageComponent} from './components/facture-page/facture-page.compo
 import {BdcPageComponent} from './components/bdc-page/bdc-page.component';
 import { DatabasePageComponent } from './components/database-page/database-page.component';
 import { PaymentPageComponent } from './components/payment-page/payment-page.component';
+import { PaymentbdcPageComponent } from './components/paymentbdc-page/paymentbdc-page.component';
+
+
 export const routes: Routes = [
 
   { path: 'solution', component: SolutionComponent },
@@ -23,7 +26,9 @@ export const routes: Routes = [
   { path: 'facture', component: FacturePageComponent },
   { path: 'bdc', component: BdcPageComponent },
   { path: 'database', component: DatabasePageComponent },
-  { path: 'payment', component: PaymentPageComponent }
+  { path: 'payment', component: PaymentPageComponent },
+  { path: 'paymentbdc', component: PaymentbdcPageComponent }
+
   /*
       Access the New Page:
       Start the Angular development server (ng serve) and navigate to
