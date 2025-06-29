@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -86,5 +87,22 @@ public class SolutionController {
         public void setSupplierNames(List<String> supplierNames) { this.supplierNames = supplierNames; }
     }
 
+    @PatchMapping("/{id}/prix")
+    public ResponseEntity<Solution> updateSolutionPrix(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Float> request) {
+
+        Float newPrix = request.get("prix");
+        if (newPrix == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            Solution updatedSolution = solutionService.updateSolutionPrix(id, newPrix);
+            return ResponseEntity.ok(updatedSolution);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

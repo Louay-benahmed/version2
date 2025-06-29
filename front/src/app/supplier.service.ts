@@ -207,6 +207,15 @@ export class SupplierService {
     );
   }
 
+  updateSolutionPrix(solutionId: number, newPrix: number): Observable<Solution> {
+    const headers = this.getHeaders();
+    return this.http.patch<Solution>(
+      `${this.apiUrlSolution}/${solutionId}/prix`,
+      { prix: newPrix },
+      { headers }
+    );
+  }
+
   createSolutionWithSuppliers(solution: CreateSolutionDto, supplierNames: string[]): Observable<Solution> {
     const payload = {
       solution: {

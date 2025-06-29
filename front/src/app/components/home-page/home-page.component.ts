@@ -85,7 +85,33 @@ export class HomePageComponent implements OnInit {
   clientExcelData: ClientExcelData | null = null;
 // Add this property to track export state
   isExporting = false;
+// Track modified solutions
+  modifiedSolutions: {[key: number]: number} = {};
 
+// When price input changes
+  onPriceChange(solutionId: number, newPrice: number) {
+    this.modifiedSolutions[solutionId] = newPrice;
+  }
+
+// Save all price changes
+  savePriceChanges() {
+    const updatePromises = Object.keys(this.modifiedSolutions).map(id => {
+      const solutionId = +id;
+      return this.supplierService.updateSolutionPrix(
+        solutionId,
+        this.modifiedSolutions[solutionId]
+      ).toPromise();
+    });
+
+    Promise.all(updatePromises)
+      .then(() => {
+        this.modifiedSolutions = {}; // Clear modifications
+      })
+      .catch(error => {
+        console.error('Error updating prices:', error);
+        // Handle error (show toast, etc.)
+      });
+  }
 // Add this method for Excel export
   exportToExcel() {
     this.isExporting = true;
@@ -1191,4 +1217,5 @@ export class HomePageComponent implements OnInit {
     }
   }
 
+  protected readonly Object = Object;
 }

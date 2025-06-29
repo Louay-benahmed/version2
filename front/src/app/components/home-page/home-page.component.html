@@ -315,23 +315,27 @@
               <!-- Associated Solutions -->
               <div *ngIf="selectedSupplierId && supplierSolutions.length > 0" class="linked-section">
                 <div class="solution-item" *ngFor="let solution of supplierSolutions">
-                  <!-- <span> Prix de la solution {{ solution.description }} : {{ solution.prix }} </span> -->
                   <span> Prix de la solution {{ solution.description }} : </span>
                   <input type="number"
                          [(ngModel)]="solution.prix"
+                         (change)="onPriceChange(solution.id, solution.prix)"
                          style="width: 150px; margin-left: 5px;"
                          class="form-control form-control-sm d-inline-block">
                 </div>
               </div>
-            </div>
-            <div class="form-group mt-3 button-container">
 
-            <button class="btn btn-secondary" style="margin-left: 10px;" (click)="toggleSpecificSolutionnDiv()">
-              <i class="fas fa-file-invoice"></i> Facturation Client
-            </button>
-            </div>
+              <div class="form-group mt-3 button-container">
+                <button class="btn btn-primary" (click)="savePriceChanges()"
+                        [disabled]="Object.keys(modifiedSolutions).length === 0">
+                  <i class="fas fa-save"></i> Enregistrer les modifications
+                </button>
+
+                <button class="btn btn-secondary" style="margin-left: 10px;" (click)="toggleSpecificSolutionnDiv()">
+                  <i class="fas fa-file-invoice"></i> Facturation Client
+                </button>
+              </div>
           </div>
-
+          </div>
         </fieldset>
       </div>
       <div id="div_client">

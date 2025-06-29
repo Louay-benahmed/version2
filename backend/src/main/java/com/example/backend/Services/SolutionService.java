@@ -90,5 +90,11 @@ public class SolutionService {
     }
 
 
+    public Solution updateSolutionPrix(Integer id, Float newPrix) {
+        Solution solution = solutionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Solution not found with id: " + id));
 
+        solution.setPrix(newPrix);
+        return solutionRepository.save(solution);
+    }
 }
