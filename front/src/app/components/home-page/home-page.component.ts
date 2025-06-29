@@ -127,10 +127,11 @@ export class HomePageComponent implements OnInit {
   // Modified toggleSpecificSolutionnDiv
   toggleSpecificSolutionnDiv(): void {
     this.showSpecificSolutionDiv = !this.showSpecificSolutionDiv;
-
-    if (!this.showSpecificSolutionDiv && this.invoiceGenerationFlag) {
-      this.resetPrices();
-      this.invoiceGenerationFlag = false;
+    if (this.showSpecificSolutionDiv) {
+      this.loadAllAvailableSolutions();
+      if (this.selectedSupplierId) {
+        this.loadSupplierAssociatedSolutions();
+      }
     }
   }
   private async resetPrices(): Promise<void> {
@@ -198,8 +199,11 @@ export class HomePageComponent implements OnInit {
       // 2. Execute specific billing
       await this.specific_billing();
 
-      // 3. Handle invoice generation
+      // 3. Handle invoice generation toggleSpecificSolutionnDiv
       await this.handleInvoiceGeneration();
+
+      // 3. close the div  toggleSpecificSolutionnDiv
+      await this.toggleSpecificSolutionnDiv();
 
       // Optional: Show success message
       this.toastr.success('Invoice process completed successfully');
