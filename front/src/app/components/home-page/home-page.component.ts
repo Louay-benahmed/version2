@@ -78,39 +78,178 @@ export class HomePageComponent implements OnInit {
   errorMessage = '';
   solutions: Solution[] = [];
 
-  /////////////////////////////////////////////////////////////////////
   // Add these properties to your component
   showExcelDataDiv: boolean = false;
   showExcelDataInfoDiv: boolean = false;
   clientExcelData: ClientExcelData | null = null;
-// Add this property to track export state
+  // Add this property to track export state
   isExporting = false;
-// Track modified solutions
+  // Track modified solutions
   modifiedSolutions: {[key: number]: number} = {};
-
-// When price input changes
+  // Add these new properties for price management
+  private originalPrices: { [id: number]: number } = {};
+  private resetTimer: any;
+// Add these properties
+  private invoiceGenerationFlag = false;
+  private lastInvoiceTime: Date | null = null;
+  private isGeneratingInvoice = false;
+/////////////////////////////////////////////////////////////////////////////////////////////////
+  // Modified onPriceChange to track original prices
+  // Modified onPriceChange
   onPriceChange(solutionId: number, newPrice: number) {
+    if (!this.originalPrices[solutionId]) {
+      const solution = this.supplierSolutions.find(s => s.id === solutionId);
+      if (solution) {
+        this.originalPrices[solutionId] = solution.prix;
+        console.log(`Stored original price for ${solutionId}:`, solution.prix);
+      }
+    }
     this.modifiedSolutions[solutionId] = newPrice;
+    console.log(`Updated price for ${solutionId}:`, newPrice);
+  }
+  // Enhanced savePriceChanges with error handling
+  // Save changes (update DB)
+  public async savePriceChanges(): Promise<void> {
+    const updates = Object.keys(this.modifiedSolutions).map(id => ({
+      id: +id,
+      newPrice: this.modifiedSolutions[+id] // Fixed: use +id to ensure number type
+    }));
+
+    console.log('Saving these changes:', updates);
+
+    await Promise.all(
+      updates.map(({id, newPrice}) =>
+        this.supplierService.updateSolutionPrix(id, newPrice).toPromise()
+      ) // Added missing parenthesis
+    );
   }
 
-// Save all price changes
-  savePriceChanges() {
-    const updatePromises = Object.keys(this.modifiedSolutions).map(id => {
-      const solutionId = +id;
-      return this.supplierService.updateSolutionPrix(
-        solutionId,
-        this.modifiedSolutions[solutionId]
-      ).toPromise();
-    });
+  // Modified toggleSpecificSolutionnDiv
+  toggleSpecificSolutionnDiv(): void {
+    this.showSpecificSolutionDiv = !this.showSpecificSolutionDiv;
 
-    Promise.all(updatePromises)
-      .then(() => {
-        this.modifiedSolutions = {}; // Clear modifications
-      })
-      .catch(error => {
-        console.error('Error updating prices:', error);
-        // Handle error (show toast, etc.)
+    if (!this.showSpecificSolutionDiv && this.invoiceGenerationFlag) {
+      this.resetPrices();
+      this.invoiceGenerationFlag = false;
+    }
+  }
+  private async resetPrices(): Promise<void> {
+    const resets = Object.keys(this.originalPrices).map(id => ({
+      id: +id,
+      originalPrice: this.originalPrices[+id] // Fixed: use +id to ensure number type
+    }));
+
+    console.log('Resetting these prices:', resets);
+
+    await Promise.all(
+      resets.map(({id, originalPrice}) =>
+        this.supplierService.updateSolutionPrix(id, originalPrice).toPromise()
+      ) // Added missing parenthesis
+    );
+
+
+    // Clear state
+    this.modifiedSolutions = {};
+    this.originalPrices = {};
+  }
+
+
+  // New method to handle invoice button click
+  // Invoice generation flow
+  async handleInvoiceGeneration() {
+    if (this.isGeneratingInvoice) return;
+    this.isGeneratingInvoice = true;
+
+    try {
+      console.group('Invoice Process');
+
+      // 1. Save modified prices
+      if (Object.keys(this.modifiedSolutions).length > 0) {
+        console.log('Saving price changes to DB...');
+        await this.savePriceChanges();
+      }
+
+      // 2. Reset prices
+      console.log('Resetting prices to originals...');
+      await this.resetPrices();
+
+      console.log('Invoice process completed successfully');
+    } catch (error) {
+      console.error('Invoice process failed:', error);
+      this.toastr.error('Invoice generation failed');
+    } finally {
+      this.isGeneratingInvoice = false;
+      console.groupEnd();
+    }
+  }
+
+
+  async specific_billing() {
+    this.generateInvoice(this.selectedSupplierId!);
+  }
+
+  async executeFullInvoiceProcess() {
+    try {
+      // 1. Save price changes (if any)
+      if (Object.keys(this.modifiedSolutions).length > 0) {
+        await this.savePriceChanges();
+      }
+
+      // 2. Execute specific billing
+      await this.specific_billing();
+
+      // 3. Handle invoice generation
+      await this.handleInvoiceGeneration();
+
+      // Optional: Show success message
+      this.toastr.success('Invoice process completed successfully');
+    } catch (error) {
+      console.error('Full invoice process failed:', error);
+      this.toastr.error('Full invoice process failed');
+      throw error; // Re-throw if you want calling code to handle it
+    }
+  }
+
+  // New method to reset prices
+  private async resetPricesToOriginal() {
+    try {
+      const revertPromises = Object.keys(this.originalPrices).map(id => {
+        const solutionId = +id;
+        return this.supplierService.updateSolutionPrix(
+          solutionId,
+          this.originalPrices[solutionId]
+        ).toPromise();
       });
+
+      await Promise.all(revertPromises);
+      this.modifiedSolutions = {};
+      this.originalPrices = {};
+
+      // Refresh solutions to show original prices
+      if (this.selectedSupplierId) {
+        await this.loadSupplierAssociatedSolutions();
+      }
+
+      console.log('Prices automatically reset to original values');
+    } catch (error) {
+      console.error('Error resetting prices:', error);
+    }
+  }
+
+  // Don't forget to clean up in ngOnDestroy
+  ngOnDestroy(): void {
+    this.destroySupplierPaymentChart();
+
+    // ... any other cleanup you have
+  }
+  toggleSolutionnDiv(): void {
+    this.showSolutionDiv = !this.showSolutionDiv;
+    if (this.showSolutionDiv) {
+      this.loadAllAvailableSolutions();
+      if (this.selectedSupplierId) {
+        this.loadSupplierAssociatedSolutions();
+      }
+    }
   }
 // Add this method for Excel export
   exportToExcel() {
@@ -235,24 +374,7 @@ export class HomePageComponent implements OnInit {
     }, 200);
   }
 
-  toggleSolutionnDiv(): void {
-    this.showSolutionDiv = !this.showSolutionDiv;
-    if (this.showSolutionDiv) {
-      this.loadAllAvailableSolutions();
-      if (this.selectedSupplierId) {
-        this.loadSupplierAssociatedSolutions();
-      }
-    }
-  }
-  toggleSpecificSolutionnDiv(): void {
-    this.showSpecificSolutionDiv = !this.showSpecificSolutionDiv;
-    if (this.showSpecificSolutionDiv) {
-      this.loadAllAvailableSolutions();
-      if (this.selectedSupplierId) {
-        this.loadSupplierAssociatedSolutions();
-      }
-    }
-  }
+
 
   goToPage() {
     this.router.navigate(['/management']);
@@ -1076,11 +1198,7 @@ export class HomePageComponent implements OnInit {
   }
 
 
-// Don't forget to clean up in ngOnDestroy
-  ngOnDestroy(): void {
-    this.destroySupplierPaymentChart();
-    // ... any other cleanup you have
-  }
+
 
 
   // Add these methods
