@@ -889,7 +889,12 @@ export class DatabasePageComponent implements OnInit{
     this.excelData = null;
     this.currentExport = null;
   }
-
+// Add this method to your component class
+  public backToSheetSelection(): void {
+    if (this.workbook) {
+      this.showSheetSelector(this.workbook);
+    }
+  }
   async confirmDeleteExport(exportItem: any, type: 'database' | 'supplier'): Promise<void> {
     const confirmed = await this.confirmDelete(`Are you sure you want to delete this ${type} export?`);
     if (!confirmed) return;

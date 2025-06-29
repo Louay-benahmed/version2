@@ -233,12 +233,13 @@
           </table>
         </div>
       </div>
+      <!-- Modify the modal-footer section in your Excel Data Viewer Modal -->
       <div class="modal-footer">
-        <button *ngIf="excelData?.sheets?.length > 1"
+        <button
                 type="button"
                 class="btn btn-outline-secondary"
-                (click)="showSheetSelector()">
-          <i class="fas fa-file-alt"></i> Switch Sheet
+                (click)="backToSheetSelection()">
+          <i class="fas fa-arrow-left"></i> Back to Sheets
         </button>
         <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Close</button>
         <button type="button" class="btn btn-primary" (click)="downloadCurrentExcel()" [disabled]="!excelData">
