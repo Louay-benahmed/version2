@@ -83,7 +83,7 @@
       </table>      <div *ngIf="showSupplierDiv" class="fieldset-container">
         <fieldset class="border p-3 mt-4">
           <!-- Edit Supplier Section -->
-          <div *ngIf="showInfoSupplierDiv" [class.disabled]="showSolutionDiv">
+          <div *ngIf="showInfoSupplierDiv" [class.disabled]="showSolutionDiv|| showSpecificSolutionDiv">
             <legend class="w-auto">Info(client)</legend>
             <button type="button" class="close" aria-label="Close" (click)="toggleShowInfoSupplierDivclose()">
               <span aria-hidden="true">&times;</span>
@@ -163,6 +163,9 @@
               <button class="btn btn-info" style="margin-left: 10px;" (click)="showSupplierPaymentChart()">
                 <i class="fas fa-chart-pie"></i> Voir statut de paiement
               </button>
+              <button class="btn btn-secondary" style="margin-left: 10px;" (click)="toggleSpecificSolutionnDiv()">
+                <i class="fas fa-file-invoice"></i> Facturation spécifique
+              </button>
               <button class="btn btn-success" style="margin-left: 10px;" (click)="toggleSolutionnDiv()">
                 <i class="fas fa-plus-circle"></i> gestion des solutions
               </button>
@@ -205,7 +208,7 @@
 
           <!-- Add Supplier Section -->
           <!-- Add Supplier Section - Updated with new fields -->
-          <div *ngIf="showAddSupplierDiv" class="supplier-form-container">
+          <div *ngIf="showAddSupplierDiv" class="supplier-form-container" style="padding-top: 30px;">
             <legend class="w-auto">Ajouter un client</legend>
             <button type="button" class="close" aria-label="Close" (click)="toggleShowAddSupplierDiv()">
               <span aria-hidden="true">&times;</span>
@@ -299,6 +302,36 @@
                 </div>
               </div>
             </div>      </div>
+
+          <div *ngIf="showSpecificSolutionDiv" class="solutions-panel" id="solutionsPanele">
+            <div class="panel-header">
+              <h5>Facturation spécifique du client : {{selectedSupplier?.name}}</h5>
+              <button class="close-btn" id="closePanele" (click)="toggleSpecificSolutionnDiv()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <div class="solutions-container">
+              <!-- Associated Solutions -->
+              <div *ngIf="selectedSupplierId && supplierSolutions.length > 0" class="linked-section">
+                <div class="solution-item" *ngFor="let solution of supplierSolutions">
+                  <!-- <span> Prix de la solution {{ solution.description }} : {{ solution.prix }} </span> -->
+                  <span> Prix de la solution {{ solution.description }} : </span>
+                  <input type="number"
+                         [(ngModel)]="solution.prix"
+                         style="width: 150px; margin-left: 5px;"
+                         class="form-control form-control-sm d-inline-block">
+                </div>
+              </div>
+            </div>
+            <div class="form-group mt-3 button-container">
+
+            <button class="btn btn-secondary" style="margin-left: 10px;" (click)="toggleSpecificSolutionnDiv()">
+              <i class="fas fa-file-invoice"></i> Facturation Client
+            </button>
+            </div>
+          </div>
+
         </fieldset>
       </div>
       <div id="div_client">

@@ -68,6 +68,7 @@ export class HomePageComponent implements OnInit {
   originalPaidBonDeCommandesForClient: any[] = [];
   originalUnpaidBonDeCommandesForClient: any[] = [];
 
+  showSpecificSolutionDiv: boolean = false;
 
 
 
@@ -211,6 +212,15 @@ export class HomePageComponent implements OnInit {
   toggleSolutionnDiv(): void {
     this.showSolutionDiv = !this.showSolutionDiv;
     if (this.showSolutionDiv) {
+      this.loadAllAvailableSolutions();
+      if (this.selectedSupplierId) {
+        this.loadSupplierAssociatedSolutions();
+      }
+    }
+  }
+  toggleSpecificSolutionnDiv(): void {
+    this.showSpecificSolutionDiv = !this.showSpecificSolutionDiv;
+    if (this.showSpecificSolutionDiv) {
       this.loadAllAvailableSolutions();
       if (this.selectedSupplierId) {
         this.loadSupplierAssociatedSolutions();
