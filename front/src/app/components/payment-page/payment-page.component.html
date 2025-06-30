@@ -113,8 +113,10 @@
                   <td>{{ facture.numero }}</td>
                   <td>{{ facture.supplier?.name }}</td>
                   <td>{{ facture.dateCreation | date }}</td>
-                  <td>{{ facture.dateCreation | date }}</td>
-                  <td>{{ facture.dateCreation | date }}</td>
+                  <!-- Display deadline if it exists -->
+                  <td>{{ facture.deadline ? (facture.deadline | date:'dd/MM/yyyy') : 'N/A' }}</td>
+                  <!-- Display payment date if it exists (though unpaid invoices shouldn't have one) -->
+                  <td>{{ facture.paymentDate ? (facture.paymentDate | date:'dd/MM/yyyy') : 'N/A' }}</td>
 
                   <td>{{ facture.supplier?.email }}</td>
                   <td>
@@ -195,9 +197,9 @@
                 <tr *ngFor="let facture of paidFactures">
                   <td>{{ facture.numero }}</td>
                   <td>{{ facture.supplier?.name }}</td>
-                  <td>{{ facture.dateCreation | date }}</td>
-                  <td>{{ facture.dateCreation | date }}</td>
-                  <td>{{ facture.supplier?.email }}</td>
+                  <td>{{ facture.dateCreation | date:'dd/MM/yyyy' }}</td>
+                  <!-- Payment Date -->
+                  <td>{{ facture.paymentDate ? (facture.paymentDate | date:'dd/MM/yyyy') : 'Date inconnue' }}</td>                  <td>{{ facture.supplier?.email }}</td>
                   <td>
                     <div class="action-buttons">
                       <!-- View Document -->

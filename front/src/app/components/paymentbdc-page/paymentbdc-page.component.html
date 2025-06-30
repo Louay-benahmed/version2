@@ -110,8 +110,10 @@
                   <td>{{ commande.numero }}</td>
                   <td>{{ commande.client?.name }}</td>
                   <td>{{ commande.dateCreation | date }}</td>
-                  <td>{{ commande.dateCreation | date }}</td>
-                  <td>{{ commande.dateCreation | date }}</td>
+                  <!-- Deadline Date -->
+                  <td>{{ commande.deadline ? (commande.deadline | date:'dd/MM/yyyy') : 'Non défini' }}</td>
+                  <!-- Payment Date (should be empty for unpaid) -->
+                  <td>{{ commande.paymentDate ? (commande.paymentDate | date:'dd/MM/yyyy') : 'Non payé' }}</td>
                   <td>{{ commande.client?.email }}</td>
                   <td>
                     <div class="action-buttons">
@@ -193,8 +195,8 @@
                   <td>{{ commande.numero }}</td>
                   <td>{{ commande.client?.name }}</td>
                   <td>{{ commande.dateCreation | date }}</td>
-                  <td>{{ commande.dateCreation | date }}</td>
-                  <td>{{ commande.client?.email }}</td>
+                  <!-- Payment Date Column -->
+                  <td>{{ commande.paymentDate ? (commande.paymentDate | date:'dd/MM/yyyy') : 'Non spécifiée' }}</td>                  <td>{{ commande.client?.email }}</td>
                   <td>
                     <div class="action-buttons">
                       <!-- View Document -->

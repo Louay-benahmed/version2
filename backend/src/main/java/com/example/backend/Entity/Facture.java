@@ -22,6 +22,12 @@ public class Facture {
     @Column(nullable = false)
     private Date dateCreation;
 
+    @Column(nullable = true) // Can be null
+    private Date paymentDate; // New field
+
+    @Column(nullable = true) // Can be null
+    private Date deadline; // New field
+
     @Column(nullable = false)
     private boolean payment;
     // 0 = false (non payé)
@@ -97,6 +103,23 @@ public class Facture {
 
     public String getStatutPaiement() {
         return payment ? "payé" : "non payé";
+    }
+
+    // Add getters and setters for new fields
+    public Date getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(Date paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    public Date getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
     }
 
 }

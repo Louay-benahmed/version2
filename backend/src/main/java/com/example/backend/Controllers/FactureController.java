@@ -12,6 +12,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -107,6 +108,31 @@ public class FactureController {
     public ResponseEntity<List<Facture>> getUnpaidFacturesBySupplier(@PathVariable Integer supplierId) {
         List<Facture> factures = factureService.getUnpaidFacturesBySupplierId(supplierId);
         return ResponseEntity.ok(factures);
+    }
+
+    @PutMapping("/set-deadline/{id}")
+    public ResponseEntity<?> setDeadline(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Date> request) {
+        try {
+            Date deadline = request.get("deadline");
+            factureService.setDeadline(id, deadline);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to set deadline: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/set-payment-date/{id}")
+    public ResponseEntity<?> setPaymentDateToToday(@PathVariable Integer id) {
+        try {
+            factureService.setPaymentDateToToday(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to set payment date: " + e.getMessage());
+        }
     }
 
 }
