@@ -400,3 +400,17 @@ body {
   font-weight: 550;
   color: #495057;
 }
+/* Add these styles */
+input[type="date"].form-control-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.text-danger {
+  color: #dc3545;
+}
+
+.text-success {
+  color: #28a745;
+}

@@ -30,7 +30,9 @@ public class FactureService {
                 .orElseThrow(() -> new RuntimeException("Facture not found"));
         facture.setPayment(paymentStatus);
         if (paymentStatus) {
+            // When marking as paid:
             facture.setPaymentDate(new Date());
+            facture.setDeadline(null); // Reset deadline to null
         } else {
             facture.setPaymentDate(null);
         }

@@ -114,10 +114,28 @@
                   <td>{{ facture.supplier?.name }}</td>
                   <td>{{ facture.dateCreation | date }}</td>
                   <!-- Display deadline if it exists -->
-                  <td>{{ facture.deadline ? (facture.deadline | date:'dd/MM/yyyy') : 'N/A' }}</td>
+                  <td>
+                    <div *ngIf="!updatingDeadline[facture.facture_id]">
+                      <input type="date"
+                             [value]="facture.deadline ? (facture.deadline | date:'yyyy-MM-dd') : ''"
+                             (change)="setDeadline(facture.facture_id, $event)"
+                             class="form-control form-control-sm">
+                    </div>
+                    <div *ngIf="updatingDeadline[facture.facture_id]" class="text-center">
+                      <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                  </td>
                   <!-- Display payment date if it exists (though unpaid invoices shouldn't have one) -->
-                  <td>{{ facture.paymentDate ? (facture.paymentDate | date:'dd/MM/yyyy') : 'N/A' }}</td>
-
+                  <td>
+                     <span *ngIf="facture.deadline"
+                       [ngClass]="{
+                          'text-danger': isDeadlinePassed(facture.deadline),
+                          'text-success': !isDeadlinePassed(facture.deadline)
+                        }">
+                       {{ getDeadlineStatus(facture.deadline) }}
+                     </span>
+                    <span *ngIf="!facture.deadline">Non défini</span>
+                  </td>
                   <td>{{ facture.supplier?.email }}</td>
                   <td>
                     <div class="action-buttons">

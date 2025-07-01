@@ -55,6 +55,55 @@ export class PaymentPageComponent implements OnInit {
   currentFacture: any = null;
   // Use only one variable to control the state
   showUnpaid: boolean = false; // false = showing paid invoices (initial state)
+// For tracking deadline updates
+  updatingDeadline: { [key: number]: boolean } = {};
+
+
+
+  // Method to set deadline
+  setDeadline(factureId: number, event: any): void {
+    const dateString = event.target.value;
+    if (!dateString) return;
+
+    const deadline = new Date(dateString);
+    this.updatingDeadline[factureId] = true;
+
+    this.supplierService.setFactureDeadline(factureId, deadline).subscribe({
+      next: () => {
+        // Update local state
+        const facture = this.unpaidFactures.find(f => f.facture_id === factureId);
+        if (facture) {
+          facture.deadline = deadline;
+        }
+        this.updatingDeadline[factureId] = false;
+      },
+      error: (err) => {
+        console.error('Error setting deadline:', err);
+        this.updatingDeadline[factureId] = false;
+      }
+    });
+  }
+
+  // Add these helper methods to your component
+
+  isDeadlinePassed(deadline: Date): boolean {
+    if (!deadline) return false;
+    return new Date(deadline) < new Date();
+  }
+
+  getDeadlineStatus(deadline: Date): string {
+    if (!deadline) return 'Non défini';
+
+    const today = new Date();
+    const deadlineDate = new Date(deadline);
+
+    if (deadlineDate < today) {
+      return 'Dépassé';
+    } else {
+      const diffDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return `Dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+    }
+  }
 
   toggleInvoiceVisibility() {
     this.showUnpaid = !this.showUnpaid;

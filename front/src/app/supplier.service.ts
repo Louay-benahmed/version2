@@ -386,7 +386,25 @@ export class SupplierService {
       { headers }
     );
   }
+// Add these methods to your service file
 
+// Set deadline for a facture
+  setFactureDeadline(factureId: number, deadline: Date): Observable<any> {
+    const headers = this.getHeaders();
+    return this.http.put(`${this.apiUrlfacture}/set-deadline/${factureId}`,
+      { deadline },
+      { headers }
+    );
+  }
+
+// Set deadline for a bon de commande
+  setBonDeCommandeDeadline(commandeId: number, deadline: Date): Observable<any> {
+    const headers = this.getHeaders();
+    return this.http.put(`${this.apiUrlbdc}/set-deadline/${commandeId}`,
+      { deadline },
+      { headers }
+    );
+  }
   deleteFacture(factureId: number): Observable<any> {
     const headers = this.getHeaders();
     return this.http.delete(`${this.apiUrlfacture}/${factureId}`, { headers });
