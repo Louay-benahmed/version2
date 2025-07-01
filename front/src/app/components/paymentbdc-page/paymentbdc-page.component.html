@@ -124,14 +124,16 @@
                   </td>
                   <!-- Payment Date (should be empty for unpaid) -->
                   <td>
-                <span *ngIf="commande.deadline"
-                      [ngClass]="{
-                        'text-danger': isDeadlinePassed(commande.deadline),
-                        'text-success': !isDeadlinePassed(commande.deadline)
-                      }">
-                  {{ getDeadlineStatus(commande.deadline) }}
-                </span>
-                    <span *ngIf="!commande.deadline">Pas d’échéance</span>
+  <span *ngIf="commande.deadline">
+    <span *ngIf="isDeadlinePassed(commande.deadline)" class="text-danger">
+      Dépassé de {{ getDaysOverdue(commande.deadline) }} jour{{ getDaysOverdue(commande.deadline) > 1 ? 's' : '' }}
+    </span>
+    <span *ngIf="!isDeadlinePassed(commande.deadline)" class="text-success">
+      Dans {{ getDaysRemaining(commande.deadline) }} jour{{ getDaysRemaining(commande.deadline) > 1 ? 's' : '' }}
+    </span>
+  </span>
+                    <span *ngIf="!commande.deadline" class="text-muted">
+Pas d’échéance  </span>
                   </td>
                   <td>{{ commande.client?.email }}</td>
                   <td>

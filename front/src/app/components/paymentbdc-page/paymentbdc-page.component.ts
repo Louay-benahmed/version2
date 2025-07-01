@@ -78,10 +78,31 @@ export class PaymentbdcPageComponent implements OnInit {
   }
 
 // Ensure you have these helper methods (they can be reused from the facture implementation)
+  getDaysRemaining(deadline: Date): number {
+    if (!deadline) return 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of day
+    const deadlineDate = new Date(deadline);
+    deadlineDate.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+  }
+
+  getDaysOverdue(deadline: Date): number {
+    if (!deadline) return 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of day
+    const deadlineDate = new Date(deadline);
+    deadlineDate.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.ceil((today.getTime() - deadlineDate.getTime()) / (1000 * 60 * 60 * 24)));
+  }
+
   isDeadlinePassed(deadline: Date): boolean {
     if (!deadline) return false;
-    return new Date(deadline) < new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(deadline).setHours(0, 0, 0, 0) < today.getTime();
   }
+
 
   getDeadlineStatus(deadline: Date): string {
     if (!deadline) return 'Non défini';
