@@ -48,9 +48,54 @@ export class PaymentbdcPageComponent implements OnInit {
   commandeEmailBody: string = 'Veuillez trouver ci-joint votre bon de commande.';
   currentCommande: any = null;
   showPaidCommandes: boolean = false; // Initial state shows paid commandes
+  updatingDeadline: { [key: number]: boolean } = {};
 
 
+// Add these to your component
 
+// Method to set deadline for commande
+  setCommandeDeadline(commandeId: number, event: any): void {
+    const dateString = event.target.value;
+    if (!dateString) return;
+
+    const deadline = new Date(dateString);
+    this.updatingDeadline[commandeId] = true;
+
+    this.supplierService.setBonDeCommandeDeadline(commandeId, deadline).subscribe({
+      next: () => {
+        // Update local state
+        const commande = this.unpaidBonDeCommandes.find(c => c.id === commandeId);
+        if (commande) {
+          commande.deadline = deadline;
+        }
+        this.updatingDeadline[commandeId] = false;
+      },
+      error: (err) => {
+        console.error('Error setting commande deadline:', err);
+        this.updatingDeadline[commandeId] = false;
+      }
+    });
+  }
+
+// Ensure you have these helper methods (they can be reused from the facture implementation)
+  isDeadlinePassed(deadline: Date): boolean {
+    if (!deadline) return false;
+    return new Date(deadline) < new Date();
+  }
+
+  getDeadlineStatus(deadline: Date): string {
+    if (!deadline) return 'Non défini';
+
+    const today = new Date();
+    const deadlineDate = new Date(deadline);
+
+    if (deadlineDate < today) {
+      return 'Dépassé';
+    } else {
+      const diffDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return `Dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+    }
+  }
 
   constructor(
     private router: Router,

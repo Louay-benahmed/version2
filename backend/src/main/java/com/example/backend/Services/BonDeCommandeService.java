@@ -30,7 +30,10 @@ public class BonDeCommandeService {
                 .orElseThrow(() -> new RuntimeException("Bon de commande not found"));
         commande.setPayment(paymentStatus);
         if (paymentStatus) {
+            // When marking as paid:
             commande.setPaymentDate(new Date());
+            commande.setDeadline(null);// Reset deadline to null
+
         } else {
             commande.setPaymentDate(null);
         }

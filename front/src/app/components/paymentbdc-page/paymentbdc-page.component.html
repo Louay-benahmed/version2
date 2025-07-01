@@ -111,9 +111,28 @@
                   <td>{{ commande.client?.name }}</td>
                   <td>{{ commande.dateCreation | date }}</td>
                   <!-- Deadline Date -->
-                  <td>{{ commande.deadline ? (commande.deadline | date:'dd/MM/yyyy') : 'Non défini' }}</td>
+                  <td>
+                    <div *ngIf="!updatingDeadline[commande.id]">
+                      <input type="date"
+                             [value]="commande.deadline ? (commande.deadline | date:'yyyy-MM-dd') : ''"
+                             (change)="setCommandeDeadline(commande.id, $event)"
+                             class="form-control form-control-sm">
+                    </div>
+                    <div *ngIf="updatingDeadline[commande.id]" class="text-center">
+                      <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                  </td>
                   <!-- Payment Date (should be empty for unpaid) -->
-                  <td>{{ commande.paymentDate ? (commande.paymentDate | date:'dd/MM/yyyy') : 'Non payé' }}</td>
+                  <td>
+                <span *ngIf="commande.deadline"
+                      [ngClass]="{
+                        'text-danger': isDeadlinePassed(commande.deadline),
+                        'text-success': !isDeadlinePassed(commande.deadline)
+                      }">
+                  {{ getDeadlineStatus(commande.deadline) }}
+                </span>
+                    <span *ngIf="!commande.deadline">Non défini</span>
+                  </td>
                   <td>{{ commande.client?.email }}</td>
                   <td>
                     <div class="action-buttons">
