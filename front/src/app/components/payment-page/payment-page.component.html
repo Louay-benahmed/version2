@@ -126,7 +126,8 @@
                     </div>
                   </td>
                   <!-- Display payment date if it exists (though unpaid invoices shouldn't have one) -->
-                  <td>
+                  <!-- For unpaid invoices section -->
+                  <td [style.background-color]="!facture.payment && isDeadlinePassed(facture.deadline) ? '#f8d7da' : (!facture.payment && facture.deadline && !isDeadlinePassed(facture.deadline) ? '#d4ffcd' : facture.payment ? '#d4edda' : '')">
   <span *ngIf="facture.deadline">
     <span *ngIf="isDeadlinePassed(facture.deadline)" class="text-danger">
       Dépassé de {{ getDaysOverdue(facture.deadline) }} jour{{ getDaysOverdue(facture.deadline) > 1 ? 's' : '' }}
@@ -136,7 +137,8 @@
     </span>
   </span>
                     <span *ngIf="!facture.deadline" class="text-muted">
-Pas d’échéance  </span>
+    Pas d'échéance
+  </span>
                   </td>
                   <td>{{ facture.supplier?.email }}</td>
                   <td>

@@ -123,7 +123,7 @@
                     </div>
                   </td>
                   <!-- Payment Date (should be empty for unpaid) -->
-                  <td>
+                  <td [style.background-color]="!commande.payment && isDeadlinePassed(commande.deadline) ? '#f8d7da' : (!commande.payment && commande.deadline && !isDeadlinePassed(commande.deadline) ? '#d4ffcd' : commande.payment ? '#d4edda' : '')">
   <span *ngIf="commande.deadline">
     <span *ngIf="isDeadlinePassed(commande.deadline)" class="text-danger">
       Dépassé de {{ getDaysOverdue(commande.deadline) }} jour{{ getDaysOverdue(commande.deadline) > 1 ? 's' : '' }}
@@ -133,7 +133,8 @@
     </span>
   </span>
                     <span *ngIf="!commande.deadline" class="text-muted">
-Pas d’échéance  </span>
+    Pas d'échéance
+  </span>
                   </td>
                   <td>{{ commande.client?.email }}</td>
                   <td>
