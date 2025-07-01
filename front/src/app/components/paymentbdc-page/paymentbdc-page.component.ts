@@ -407,6 +407,8 @@ export class PaymentbdcPageComponent implements OnInit {
 
         this.updatingBonDeCommandePayment[commandeId] = false;
         this.showSuccessToast(`Bon de commande marqué comme ${newStatus ? 'payé' : 'non payé'}`);
+        this.loadBonDeCommandes();
+
       },
       error: (err) => {
         console.error('Error updating payment status:', err);

@@ -433,6 +433,7 @@ export class PaymentPageComponent implements OnInit {
 
         this.updatingPayment[factureId] = false;
         this.showSuccessToast(`Facture marquée comme ${newStatus ? 'payé' : 'non payé'}`);
+        this.loadFactures();
       },
       error: (err) => {
         console.error('Error updating payment status:', err);
