@@ -90,8 +90,10 @@
             <span class="badge">{{ databaseExports.length }}</span>
           </div>
           <div class="panel-content">
+            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+
             <table class="table table-bordered">
-              <thead>
+              <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
               <tr>
                 <th>id</th>
                 <th>Nom du fichier</th>
@@ -103,7 +105,7 @@
               <tr *ngFor="let export of databaseExports">
                 <td>{{ export.id }}</td>
                 <td>{{ export.fileName }}</td>
-                <td>{{ export.creationDate | date }}</td>
+                <td>{{ export.creationDate | date:'medium' }}</td>
                 <td>
                   <button (click)="viewExport(export, 'database')" class="btn btn-sm btn-info mr-1">
                     <i class="fas fa-eye"></i> View
@@ -116,6 +118,7 @@
 
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
@@ -128,8 +131,9 @@
             <span class="badge">{{ supplierExports.length }}</span>
           </div>
           <div class="panel-content">
+            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
             <table class="table table-bordered">
-              <thead>
+              <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
               <tr>
                 <th>id</th>
                 <th>Client</th>
@@ -144,7 +148,7 @@
                 <td>{{ export.id }}</td>
                 <td>{{ getClientDisplayName(export) }}</td>
                 <td>{{ export.fileName }}</td>
-                <td>{{ export.creationDate | date }}</td>
+                <td>{{ export.creationDate | date:'medium'}}</td>
                 <td>
                   <button (click)="viewExport(export, 'supplier')" class="btn btn-sm btn-info mr-1">
                     <i class="fas fa-eye"></i> View
@@ -156,6 +160,7 @@
               </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
