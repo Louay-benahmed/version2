@@ -73,12 +73,17 @@ export class DatabasePageComponent implements OnInit{
   currentExport: any = null;
   isLoadingExcel: boolean = false;
   excelModalVisible: boolean = false;
+  showX: boolean = false; // false = showing paid invoices (initial state)
 
   constructor(
     private router: Router,
     private supplierService: SupplierService,
     private sanitizer: DomSanitizer, private toastr: ToastrService
   ) {}
+
+  toggleXVisibility() {
+    this.showX = !this.showX;
+  }
 
   ngOnInit(): void {
     this.initializeAvailableYears();

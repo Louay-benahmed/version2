@@ -426,3 +426,43 @@ table td, table th {
   vertical-align: top;
   border-top: 1px solid #dee2e6;
 }
+/* Database - Volcanic Orange */
+.btn-database-fire {
+  background-color: #EB5E28;
+  color: white;
+  border: none;
+}
+
+/* Clients - Deep Slate */
+.btn-clients-elite {
+  background-color: #4B3B6D;
+  color: white;
+  border: none;
+}
+
+/* Hover Effects */
+.btn-database-fire:hover {
+  background-color: #E04C10; /* Darker lava tone */
+}
+
+/* Clients - Charcoal Purple (Your Pick) */
+.btn-clients-unique {
+  background-color: #4B3B6D;
+  color: white;
+  border: none;
+}
+
+/* Clients - Charcoal Purple */
+.btn-clients-unique {
+  background-color: #4B3B6D;
+  color: white;
+  border: none;
+  transition: all 0.3s;
+}
+
+
+
+.btn-clients-unique:hover {
+  background-color: #3A2C56; /* Slightly darker purple */
+}
+

@@ -32,6 +32,14 @@
         <button (click)="goToPage()" class="btn btn-primary" style="height: 40px;">
           <i class="fas fa-home"></i> &nbsp;&nbsp;Accueil
         </button>
+        <button
+          (click)="toggleXVisibility()"
+          class="btn"
+          [ngClass]="showX ? 'btn-database-fire' : 'btn-clients-unique'"
+          style="height: 40px;">
+          <i class="fas" [class.fa-database]="showX" [class.fa-users]="!showX"></i> &nbsp;&nbsp;
+          {{ showX ? 'Afficher la base de données' : 'Afficher les clients' }}
+        </button>
         <button (click)="exportToExcel()" [disabled]="isExporting" class="btn btn-success" style="height: 40px;">
           <i class="fas fa-file-excel"></i> &nbsp;&nbsp;{{ isExporting ? 'Export en cours...' : 'Exporter Excel' }}
         </button>
@@ -80,10 +88,10 @@
         {{ getSelectedSupplierName() }} en {{ selectedYear }}
       </strong>
     </div>
+    <!-- Replace the existing <div class="row"> section with this: -->
     <div class="row">
-      <!-- base de donner Exporter (Year filter only) -->
-      <!-- Database Exports -->
-      <div class="col-md-6">
+      <!-- Database Exports - Full width -->
+      <div class="col-md-12" *ngIf="!showX">
         <div class="invoice-panel paid">
           <div class="panel-header">
             <h3><i class="fas fa-database"></i> Exports de base de données</h3>
@@ -91,40 +99,40 @@
           </div>
           <div class="panel-content">
             <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
-
-            <table class="table table-bordered">
-              <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
-              <tr>
-                <th>id</th>
-                <th>Nom du fichier</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let export of databaseExports">
-                <td>{{ export.id }}</td>
-                <td>{{ export.fileName }}</td>
-                <td>{{ export.creationDate | date:'medium' }}</td>
-                <td>
-                  <button (click)="viewExport(export, 'database')" class="btn btn-sm btn-info mr-1">
-                    <i class="fas fa-eye"></i> View
-                  </button>
-                  <button (click)="confirmDeleteExport(export, 'database')" class="btn btn-sm btn-danger">
-                    <i class="fas fa-trash"></i> Delete
-                  </button>
-                </td>
-              </tr>
-
-              </tbody>
-            </table>
+              <table class="table table-bordered">
+                <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
+                <tr>
+                  <th class="col-1">id</th>               <!-- Very small (1/12) -->
+                  <th class="col-6">Nom du fichier</th>   <!-- Wider filename column -->
+                  <th class="col-4">Date</th>             <!-- Wide date column -->
+                  <th class="col-1">Actions</th>          <!-- Smallest possible (just fits buttons) -->
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let export of databaseExports">
+                  <td>{{ export.id }}</td>
+                  <td>{{ export.fileName }}</td>
+                  <td>{{ export.creationDate | date:'medium' }}</td>
+                  <td>
+                    <div class="d-flex">
+                      <button (click)="viewExport(export, 'database')" class="btn btn-sm btn-info mr-1">
+                        <i class="fas fa-eye"></i> View
+                      </button>
+                      <button (click)="confirmDeleteExport(export, 'database')" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Supplier Exports -->
-      <div class="col-md-6">
+      <!-- Supplier Exports - Full width below database table -->
+      <div class="col-md-12" *ngIf="showX">
         <div class="invoice-panel unpaid">
           <div class="panel-header">
             <h3><i class="fas fa-users"></i> Exports clients</h3>
@@ -132,41 +140,40 @@
           </div>
           <div class="panel-content">
             <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
-            <table class="table table-bordered">
-              <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
-              <tr>
-                <th>id</th>
-                <th>Client</th>
-                <th>Nom du fichier</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let export of supplierExports">
-                <!-- <td>{{ getClientNameFromFileName(export.fileName) }}</td> -->
-                <td>{{ export.id }}</td>
-                <td>{{ getClientDisplayName(export) }}</td>
-                <td>{{ export.fileName }}</td>
-                <td>{{ export.creationDate | date:'medium'}}</td>
-                <td>
-                  <button (click)="viewExport(export, 'supplier')" class="btn btn-sm btn-info mr-1">
-                    <i class="fas fa-eye"></i> View
-                  </button>
-                  <button (click)="confirmDeleteExport(export, 'supplier')" class="btn btn-sm btn-danger">
-                    <i class="fas fa-trash"></i> Delete
-                  </button>
-                </td>
-              </tr>
-              </tbody>
-            </table>
+              <table class="table table-bordered">
+                <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
+                <tr>
+                  <th class="col-1">id</th> <!-- Smaller column for ID -->
+                  <th class="col-3">Client</th> <!-- Medium column for Client -->
+                  <th class="col-4">Nom du fichier</th> <!-- Larger column for Filename -->
+                  <th class="col-3">Date</th> <!-- Larger column for Date (3/12 of width) -->
+                  <th class="col-1">Actions</th> <!-- Smaller column for Actions -->
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let export of supplierExports">
+                  <td>{{ export.id }}</td>
+                  <td>{{ getClientDisplayName(export) }}</td>
+                  <td>{{ export.fileName }}</td>
+                  <td>{{ export.creationDate | date:'medium'}}</td>
+                  <td>
+                    <div class="d-flex">
+                      <button (click)="viewExport(export, 'supplier')" class="btn btn-sm btn-info mr-1">
+                        <i class="fas fa-eye"></i> View
+                      </button>
+                      <button (click)="confirmDeleteExport(export, 'supplier')" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
-      <!-- donnes des clients Exporter (Year + Client filters) -->
-    </div>
-  </section>
+    </div>  </section>
 
 </main>
 
