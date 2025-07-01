@@ -131,7 +131,7 @@
                       }">
                   {{ getDeadlineStatus(commande.deadline) }}
                 </span>
-                    <span *ngIf="!commande.deadline">Non défini</span>
+                    <span *ngIf="!commande.deadline">Pas d’échéance</span>
                   </td>
                   <td>{{ commande.client?.email }}</td>
                   <td>

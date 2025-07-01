@@ -134,7 +134,7 @@
                         }">
                        {{ getDeadlineStatus(facture.deadline) }}
                      </span>
-                    <span *ngIf="!facture.deadline">Non défini</span>
+                    <span *ngIf="!facture.deadline">Pas d’échéance</span>
                   </td>
                   <td>{{ facture.supplier?.email }}</td>
                   <td>
@@ -217,7 +217,8 @@
                   <td>{{ facture.supplier?.name }}</td>
                   <td>{{ facture.dateCreation | date:'dd/MM/yyyy' }}</td>
                   <!-- Payment Date -->
-                  <td>{{ facture.paymentDate ? (facture.paymentDate | date:'dd/MM/yyyy') : 'Date inconnue' }}</td>                  <td>{{ facture.supplier?.email }}</td>
+                  <td>{{ facture.paymentDate ? (facture.paymentDate | date:'dd/MM/yyyy') : 'Non spécifiée' }}</td>
+                  <td>{{ facture.supplier?.email }}</td>
                   <td>
                     <div class="action-buttons">
                       <!-- View Document -->
