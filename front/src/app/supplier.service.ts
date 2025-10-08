@@ -513,6 +513,15 @@ export class SupplierService {
     );
   }
 
+  getLatest(): Observable<any[]> {
+    const headers = this.getHeaders();
+    return this.http.get<any[]>(`${this.apiUrlExport}/history/latest`, {
+      headers: headers
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   // New method for deleting exports
   deleteExport(exportId: number): Observable<void> {
     const headers = this.getHeaders();

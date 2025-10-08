@@ -767,6 +767,77 @@ export class DatabasePageComponent implements OnInit{
 
 // Update your viewExport method to store the workbook
 // Update the viewExport method to use it
+  async viewExportlatest(exportItem?: any, type: 'database' | 'supplier' = 'database'): Promise<void> {
+    this.isLoadingExcel = true;
+    this.excelModalVisible = true;
+
+    try {
+      let targetExport = exportItem;
+
+      // If no exportItem provided, fetch the latest one
+      if (!targetExport) {
+        targetExport = await this.getLatestExport();
+      }
+
+      this.currentExport = targetExport;
+
+      const byteCharacters = atob(targetExport.fileContent);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      // Parse and store the workbook
+      this.workbook = new ExcelJS.Workbook();
+      await this.workbook.xlsx.load(byteArray);
+
+      // Handle multiple sheets
+      if (this.workbook.worksheets.length > 1) {
+        this.showSheetSelector(this.workbook);
+      } else {
+        const firstSheet = this.workbook.worksheets[0];
+        if (firstSheet) {
+          this.processWorksheet(firstSheet, targetExport.fileName);
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing Excel file:', error);
+      this.toastr.error('Could not parse Excel file, downloading instead');
+      if (this.currentExport) {
+        this.downloadExcel(this.currentExport);
+      }
+      this.excelModalVisible = false;
+    } finally {
+      this.isLoadingExcel = false;
+    }
+  }
+
+// Add this method to fetch the latest export
+  private async getLatestExport(): Promise<any> {
+    try {
+      // Assuming you have a service method to get the latest export
+      const latestExport = await this.supplierService.getLatest().toPromise();
+
+      if (!latestExport) {
+        throw new Error('No export files found');
+      }
+
+      return latestExport;
+    } catch (error) {
+      console.error('Error fetching latest export:', error);
+      this.toastr.error('Could not fetch the latest export file');
+      throw error;
+    }
+  }
+
+// You'll also need to add this service method if you don't have it
+// In your service file:
+  /*
+  getLatest(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/export-history/latest`);
+  }
+  */
   async viewExport(exportItem: any, type: 'database' | 'supplier'): Promise<void> {
     this.currentExport = exportItem;
     this.excelData = null;

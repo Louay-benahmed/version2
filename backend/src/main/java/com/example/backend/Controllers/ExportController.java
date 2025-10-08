@@ -113,5 +113,11 @@ public class ExportController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @GetMapping("/history/latest")
+    public ExportHistory getLatestExport() {
+        return exportHistoryRepository.findTopByOrderByCreationDateDesc()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No export history found"));
+    }
 
 }

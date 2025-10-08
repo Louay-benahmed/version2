@@ -12,6 +12,8 @@ import {Chart} from 'chart.js';
 import { ToastrService } from 'ngx-toastr';
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import * as ExcelJS from 'exceljs';
+import {saveAs} from 'file-saver';
 @Component({
   selector: 'app-home-page',
   standalone: true,
@@ -93,6 +95,13 @@ export class HomePageComponent implements OnInit {
   private invoiceGenerationFlag = false;
   private lastInvoiceTime: Date | null = null;
   private isGeneratingInvoice = false;
+  // Add to your component properties
+  excelData: any = null;
+  currentExport: any = null;
+  isLoadingExcel: boolean = false;
+  excelModalVisible: boolean = false;
+  showX: boolean = false; // false = showing paid invoices (initial state)
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
   // Modified onPriceChange to track original prices
   // Modified onPriceChange
@@ -1340,4 +1349,210 @@ export class HomePageComponent implements OnInit {
   }
 
   protected readonly Object = Object;
+
+
+  async viewExportlatest(exportItem?: any, type: 'database' | 'supplier' = 'database'): Promise<void> {
+    this.isLoadingExcel = true;
+    this.excelModalVisible = true;
+
+    try {
+      let targetExport = exportItem;
+
+      // If no exportItem provided, fetch the latest one
+      if (!targetExport) {
+        targetExport = await this.getLatestExport();
+      }
+
+      this.currentExport = targetExport;
+
+      const byteCharacters = atob(targetExport.fileContent);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      // Parse and store the workbook
+      this.workbook = new ExcelJS.Workbook();
+      await this.workbook.xlsx.load(byteArray);
+
+      // Handle multiple sheets
+      if (this.workbook.worksheets.length > 1) {
+        this.showSheetSelector(this.workbook);
+      } else {
+        const firstSheet = this.workbook.worksheets[0];
+        if (firstSheet) {
+          this.processWorksheet(firstSheet, targetExport.fileName);
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing Excel file:', error);
+      this.toastr.error('Could not parse Excel file, downloading instead');
+      if (this.currentExport) {
+        this.downloadExcel(this.currentExport);
+      }
+      this.excelModalVisible = false;
+    } finally {
+      this.isLoadingExcel = false;
+    }
+  }
+  async viewExport(exportItem: any, type: 'database' | 'supplier'): Promise<void> {
+    this.currentExport = exportItem;
+    this.excelData = null;
+    this.isLoadingExcel = true;
+    this.excelModalVisible = true;
+
+    try {
+      const byteCharacters = atob(exportItem.fileContent);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      // Parse and store the workbook
+      this.workbook = new ExcelJS.Workbook();
+      await this.workbook.xlsx.load(byteArray);
+
+      // Handle multiple sheets
+      if (this.workbook.worksheets.length > 1) {
+        this.showSheetSelector(this.workbook); // Pass the workbook
+      } else {
+        const firstSheet = this.workbook.worksheets[0];
+        if (firstSheet) {
+          this.processWorksheet(firstSheet, exportItem.fileName);
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing Excel file:', error);
+      this.toastr.error('Could not parse Excel file, downloading instead');
+      this.downloadExcel(exportItem);
+      this.excelModalVisible = false;
+    } finally {
+      this.isLoadingExcel = false;
+    }
+  }
+// New helper method to process a single worksheet
+  private processWorksheet(worksheet: ExcelJS.Worksheet, fileName: string): void {
+    // Get actual column count by checking the first row
+    const firstRow = worksheet.getRow(1);
+    const colCount = firstRow.actualCellCount;
+
+    // Extract headers (keep empty if no header text)
+    const headers = [];
+    if (worksheet.rowCount > 0) {
+      for (let col = 1; col <= colCount; col++) {
+        const cell = firstRow.getCell(col);
+        headers.push(cell.text || '');
+      }
+    }
+
+    // Extract data rows
+    const rows = [];
+    for (let rowNum = 2; rowNum <= worksheet.rowCount; rowNum++) {
+      const row = [];
+      const currentRow = worksheet.getRow(rowNum);
+      for (let col = 1; col <= colCount; col++) {
+        const cell = currentRow.getCell(col);
+        row.push(cell.text || '');
+      }
+      rows.push(row);
+    }
+
+    this.excelData = {
+      headers: headers,
+      rows: rows,
+      fileName: fileName,
+      sheetName: worksheet.name
+    };
+  }
+
+// Option 1: Show sheet selector to user
+  public showSheetSelector(workbook?: ExcelJS.Workbook): void {
+    // Use the stored workbook if none provided
+    const targetWorkbook = workbook || this.workbook;
+    if (!targetWorkbook) return;
+
+    this.excelData = {
+      multipleSheets: true,
+      sheets: targetWorkbook.worksheets.map(sheet => ({
+        name: sheet.name,
+        index: sheet.id
+      })),
+      fileName: this.currentExport?.fileName || 'Export'
+    };
+    this.isLoadingExcel = false;
+  }
+// Add this property to your component class
+  private workbook?: ExcelJS.Workbook;
+// Call this when user selects a sheet
+  // Update your onSheetSelected method with proper type checking
+  public onSheetSelected(sheetId: number): void {
+    // You'll need to have stored the workbook reference or re-parse it
+    const selectedSheet = this.workbook?.getWorksheet(sheetId);
+
+    if (!selectedSheet) {
+      this.toastr.error('Selected sheet not found');
+      return;
+    }
+
+    this.processWorksheet(selectedSheet, this.currentExport.fileName);
+  }
+
+  downloadCurrentExcel(): void {
+    if (this.currentExport) {
+      this.downloadExcel(this.currentExport);
+    }
+    this.excelModalVisible = false;
+  }
+
+  private downloadExcel(exportItem: any): void {
+    const byteCharacters = atob(exportItem.fileContent);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    saveAs(blob, exportItem.fileName || `export_${new Date().getTime()}.xlsx`);
+  }
+
+  closeExcelModal(): void {
+    this.excelModalVisible = false;
+    this.excelData = null;
+    this.currentExport = null;
+  }
+// Add this method to your component class
+  public backToSheetSelection(): void {
+    if (this.workbook) {
+      this.showSheetSelector(this.workbook);
+    }
+  }
+
+  private async getLatestExport(): Promise<any> {
+    try {
+      // Assuming you have a service method to get the latest export
+      const latestExport = await this.supplierService.getLatest().toPromise();
+
+      if (!latestExport) {
+        throw new Error('No export files found');
+      }
+
+      return latestExport;
+    } catch (error) {
+      console.error('Error fetching latest export:', error);
+      this.toastr.error('Could not fetch the latest export file');
+      throw error;
+    }
+  }
+
+// You'll also need to add this service method if you don't have it
+// In your service file:
+  /*
+  getLatest(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/export-history/latest`);
+  }
+  */
+
 }
