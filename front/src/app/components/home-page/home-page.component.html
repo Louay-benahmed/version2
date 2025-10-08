@@ -776,7 +776,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Sauvegarder</button>
+          <button type="button" class="btn btn-success" (click)="closeExcelModal()">Sauvegarder</button>
         </div>
       </div>
     </div>
@@ -830,7 +830,7 @@
           <i class="fas fa-arrow-left"></i> Retour
         </button>
         <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Sauvegarder</button>
-        <button type="button" class="btn btn-primary" (click)="downloadCurrentExcel()" [disabled]="!excelData">
+        <button type="button" class="btn btn-primary" (click)="downloadCurrentExcel()" [disabled]="!excelData" style="background-color:royalblue;">
           <i class="fas fa-download"></i> Télécharger
         </button>
       </div>
