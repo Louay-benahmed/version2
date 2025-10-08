@@ -39,16 +39,18 @@
         <i class="fas fa-file-alt"></i>  goTopayment
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <!-- Add the export button -->
-      <button class="btn btn-info mb-3" (click)="exportToExcel()" [disabled]="isExporting">
+      <button class="btn btn-info mb-3" (click)="handleExportAndView_DB()" [disabled]="isExporting">
         <i class="fas fa-file-excel"></i>
         {{ isExporting ? 'Export en cours...' : 'Exporter Excel' }}
       </button>
+      <!--
       <button class="btn btn-info mb-3" (click)="viewExportlatest()" class="btn btn-primary mr-2">
         <i class="fas fa-eye"></i> View Latest Export
       </button>
       <button class="btn btn-info mb-3" (click)="deleteLatestExport()" class="btn btn-primary mr-2">
         <i class="fas fa-eye"></i> delete Latest Export
       </button>
+       -->
 
 
 
@@ -348,7 +350,7 @@
               <i class="fas fa-user-plus"></i> ajouter un Grossistes
             </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <!-- New Excel Export button -->
-            <button class="btn btn-success" (click)="exportSupplierExcel()"
+            <button class="btn btn-success" (click)="handleExportAndView_SP()"
                     [disabled]="!selectedSupplier?.id"
                     style="position: relative; bottom: 8px">
               <i class="fas fa-file-excel"></i> Exporter en Excel
@@ -756,7 +758,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">Select Sheet - {{excelData?.fileName}}</h4>
-          <button type="button" class="close" (click)="closeExcelModal()" aria-label="Close">
+          <button type="button" class="close" (click)="closeExcelModal_without_saving_file()" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -774,7 +776,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Close</button>
+          <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">sauvegarder</button>
         </div>
       </div>
     </div>
@@ -790,7 +792,7 @@
           Excel Viewer - {{excelData?.fileName}}
           <span *ngIf="excelData?.sheetName" class="text-muted small ml-2">(Sheet: {{excelData?.sheetName}})</span>
         </h4>
-        <button type="button" class="close" (click)="closeExcelModal()" aria-label="Close">
+        <button type="button" class="close" (click)="closeExcelModal_without_saving_file()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>

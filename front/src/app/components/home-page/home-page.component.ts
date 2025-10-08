@@ -1578,4 +1578,57 @@ export class HomePageComponent implements OnInit {
       this.toastr.error('Could not delete the latest export');
     }
   }
+  handleExportAndView_DB() {
+    this.isExporting = true;
+
+    // First, execute the export
+    this.exportToExcel();
+
+    // Then, automatically call X after 2 seconds
+    setTimeout(() => {
+      this.viewExportlatest();
+      this.isExporting = false;
+    }, 100);
+  }
+  handleExportAndView_SP() {
+    this.isExporting = true;
+
+    // First, execute the export
+    this.exportSupplierExcel();
+
+    // Then, automatically call X after 2 seconds
+    setTimeout(() => {
+      this.viewExportlatest();
+      this.isExporting = false;
+    }, 100);
+  }
+
+
+  async closeExcelModal_without_saving_file() {
+    try {
+      const latestExport = await this.getLatestExport();
+
+      if (!latestExport) {
+        this.toastr.warning('No export files found to delete');
+        return;
+      }
+
+      // Use the same confirmation logic as deleteLatestExport
+      const confirmDelete = confirm(`Are you sure you want to delete the latest export: ${latestExport.fileName}?`);
+
+      if (confirmDelete) {
+        // Perform the deletion
+        await this.supplierService.deleteExport(latestExport.id).toPromise();
+        this.toastr.success('Latest export deleted successfully');
+
+        // Close modal after 2 seconds
+        setTimeout(() => {
+          this.closeExcelModal();
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      this.toastr.error('Could not delete the latest export');
+    }
+  }
 }
