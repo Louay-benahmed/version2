@@ -1554,5 +1554,28 @@ export class HomePageComponent implements OnInit {
     return this.http.get(`${this.apiUrl}/export-history/latest`);
   }
   */
+  async deleteLatestExport(): Promise<void> {
+    try {
+      // First get the latest export to get its ID
+      const latestExport = await this.getLatestExport();
 
+      if (!latestExport) {
+        this.toastr.warning('No export files found to delete');
+        return;
+      }
+
+      // Confirm deletion
+      const confirmDelete = confirm(`Are you sure you want to delete the latest export: ${latestExport.fileName}?`);
+
+      if (confirmDelete) {
+        // Use the existing delete endpoint with the latest export ID
+        await this.supplierService.deleteExport(latestExport.id).toPromise();
+        this.toastr.success('Latest export deleted successfully');
+
+      }
+    } catch (error) {
+      console.error('Error deleting latest export:', error);
+      this.toastr.error('Could not delete the latest export');
+    }
+  }
 }
