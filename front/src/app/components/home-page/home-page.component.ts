@@ -1591,15 +1591,11 @@ export class HomePageComponent implements OnInit {
     }, 100);
   }
   handleExportAndView_SP() {
-    this.isExporting = true;
-
     // First, execute the export
     this.exportSupplierExcel();
-
     // Then, automatically call X after 2 seconds
     setTimeout(() => {
       this.viewExportlatest();
-      this.isExporting = false;
     }, 100);
   }
 
