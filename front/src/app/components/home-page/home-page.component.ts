@@ -1614,7 +1614,7 @@ export class HomePageComponent implements OnInit {
       }
 
       // Use the same confirmation logic as deleteLatestExport
-      const confirmDelete = confirm(`Are you sure you want to delete the latest export: ${latestExport.fileName}?`);
+      const confirmDelete = confirm(`Le fichier ne sera pas enregistré dans la base de données. Si vous souhaitez l’enregistrer, cliquez sur le bouton « Sauvegarder ».`);
 
       if (confirmDelete) {
         // Perform the deletion

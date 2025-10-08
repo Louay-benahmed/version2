@@ -750,14 +750,14 @@
     </div>
   </div>
 </div>
-
 </div>
 <div *ngIf="excelData?.multipleSheets" class="sheet-selection p-3">
   <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Select Sheet - {{excelData?.fileName}}</h4>
+          <h4 class="modal-title">Sélectionner une feuille :</h4>
+          <!-- <h4 class="modal-title">Sélectionner une feuille - {{excelData?.fileName}}</h4> -->
           <button type="button" class="close" (click)="closeExcelModal_without_saving_file()" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -776,7 +776,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">sauvegarder</button>
+          <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Sauvegarder</button>
         </div>
       </div>
     </div>
@@ -785,12 +785,12 @@
 
 <!-- Excel Data Viewer Modal -->
 <div *ngIf="excelModalVisible && !excelData?.multipleSheets" class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-xl" role="document">
+  <div class="modal-dialog" role="document" style="max-width: 1200px;">
     <div class="modal-content" style="height: 600px; overflow-y: auto;">
       <div class="modal-header">
         <h4 class="modal-title">
           Excel Viewer - {{excelData?.fileName}}
-          <span *ngIf="excelData?.sheetName" class="text-muted small ml-2">(Sheet: {{excelData?.sheetName}})</span>
+          <span *ngIf="excelData?.sheetName" class="text-muted small ml-2">(feuille : {{excelData?.sheetName}})</span>
         </h4>
         <button type="button" class="close" (click)="closeExcelModal_without_saving_file()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -827,16 +827,18 @@
           type="button"
           class="btn btn-outline-secondary"
           (click)="backToSheetSelection()">
-          <i class="fas fa-arrow-left"></i> Back to Sheets
+          <i class="fas fa-arrow-left"></i> Retour
         </button>
-        <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Close</button>
+        <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Sauvegarder</button>
         <button type="button" class="btn btn-primary" (click)="downloadCurrentExcel()" [disabled]="!excelData">
-          <i class="fas fa-download"></i> Download
+          <i class="fas fa-download"></i> Télécharger
         </button>
       </div>
     </div>
   </div>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>
 </html>
