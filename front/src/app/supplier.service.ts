@@ -513,6 +513,28 @@ export class SupplierService {
     );
   }
 
+  // Add these to your Angular service
+  // Add these new methods to your existing service
+
+// Export suppliers to database only (no download)
+  exportSuppliersToDbOnly(): Observable<any> {
+    const headers = this.getHeaders();
+    return this.http.get<any>(`${this.apiUrlExport}/suppliers-excel-db-only`, {
+      headers: headers
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+// Export single supplier to database only (no download)
+  exportSupplierToDbOnly(supplierId: number): Observable<any> {
+    const headers = this.getHeaders();
+    return this.http.get<any>(`${this.apiUrlExport}/supplier-excel-db-only/${supplierId}`, {
+      headers: headers
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
   getLatest(): Observable<any[]> {
     const headers = this.getHeaders();
     return this.http.get<any[]>(`${this.apiUrlExport}/history/latest`, {

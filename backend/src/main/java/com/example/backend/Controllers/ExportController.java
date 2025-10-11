@@ -119,5 +119,44 @@ public class ExportController {
         return exportHistoryRepository.findTopByOrderByCreationDateDesc()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No export history found"));
     }
+    // NEW API: Export suppliers and save to DB but NO download
+    @GetMapping("/suppliers-excel-db-only")
+    public ResponseEntity<ExportHistory> exportSuppliersToExcelDbOnly() {
+        try {
+            List<Supplier> suppliers = supplierRepository.findAllWithClientsAndExcelData();
+
+            if (suppliers.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No suppliers available for export");
+            }
+
+            // Generate Excel and save to history, but return the history record instead of file download
+            ExportHistory history = excelExportService.exportSuppliersToExcelDbOnly(suppliers);
+
+            return new ResponseEntity<>(history, HttpStatus.OK);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating Excel file", e);
+        }
+    }
+
+    // NEW API: Export single supplier and save to DB but NO download
+    @GetMapping("/supplier-excel-db-only/{supplierId}")
+    public ResponseEntity<ExportHistory> exportSingleSupplierToExcelDbOnly(@PathVariable Integer supplierId) {
+        try {
+            // Fetch the specific supplier with clients and excel data
+            Supplier supplier = supplierRepository.findByIdWithClientsAndExcelData(supplierId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found"));
+
+            if (supplier.getClients().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No clients available for this supplier");
+            }
+
+            // Generate Excel and save to history, but return the history record instead of file download
+            ExportHistory history = excelExportService.exportSingleSupplierToExcelDbOnly(supplier);
+
+            return new ResponseEntity<>(history, HttpStatus.OK);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating Excel file", e);
+        }
+    }
 
 }

@@ -21,11 +21,11 @@
     <div>
       <h1 class="mb-4">Liste des Clients :</h1>
       <button class="btn btn-success mb-3" (click)="toggleShowAddSupplierDiv()">
-        <i class="fas fa-plus fa-user-plus"></i> ajouter un client
+        <i class="fas fa-plus fa-user-plus"></i> Ajouter un client
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
       <button class="btn btn-warning mb-3" (click)="goTosolutionPage()">
-        <i class="fas fa-lightbulb"></i>  solution JUNO
+        <i class="fas fa-lightbulb"></i>  Solution JUNO
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
       <button class="btn btn-primary mb-3" (click)="goToPage()">
@@ -36,13 +36,14 @@
         <i class="fas fa-file-alt"></i>  goToDataBase
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <button class="btn btn-primary mb-3" (click)="goToPayement()">
-        <i class="fas fa-file-alt"></i>  goTopayment
+        <i class="fas fa-file-alt"></i>  Paiement
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <!-- Add the export button -->
       <button class="btn btn-info mb-3" (click)="handleExportAndView_DB()" [disabled]="isExporting">
         <i class="fas fa-file-excel"></i>
         {{ isExporting ? 'Export en cours...' : 'Exporter Excel' }}
-      </button>
+      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
       <!--
       <button class="btn btn-info mb-3" (click)="viewExportlatest()" class="btn btn-primary mr-2">
         <i class="fas fa-eye"></i> View Latest Export

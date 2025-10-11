@@ -262,6 +262,94 @@ public class ExcelExportService {
         history.setFileContent(fileContent);
         exportHistoryRepository.save(history);  // Call save on the instance, not the class
     }
+    // NEW METHOD: Export suppliers and save to DB but return History object (no download)
+    public ExportHistory exportSuppliersToExcelDbOnly(List<Supplier> suppliers) throws IOException {
+        if (suppliers == null || suppliers.isEmpty()) {
+            throw new IllegalArgumentException("Supplier list cannot be null or empty");
+        }
 
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            // Create styles once
+            CellStyle headerStyle = createHeaderStyle(workbook);
+            CellStyle dataStyle = createDataStyle(workbook);
+
+            for (Supplier supplier : suppliers) {
+                // Validate supplier has clients
+                if (supplier.getClients() == null || supplier.getClients().isEmpty()) {
+                    continue; // Skip suppliers without clients or create empty sheet
+                }
+
+                Sheet sheet = workbook.createSheet(sanitizeSheetName(supplier.getName()));
+
+                // Create header row
+                createHeaders(sheet.createRow(0), headerStyle);
+
+                // Add client data
+                int rowNum = 1;
+                for (Client client : supplier.getClients()) {
+                    Row row = sheet.createRow(rowNum++);
+                    populateClientData(row, client, dataStyle);
+                }
+
+                // Auto-size columns
+                for (int i = 0; i < 30; i++) {
+                    sheet.autoSizeColumn(i);
+                }
+            }
+
+            workbook.write(outputStream);
+            byte[] excelBytes = outputStream.toByteArray();
+
+            // Save export history to database
+            String fileName = "Base de données exportée le " + LocalDate.now() + ".xlsx";
+            ExportHistory history = new ExportHistory(fileName, excelBytes);
+
+            return exportHistoryRepository.save(history); // Save to DB and return the record
+        }
+    }
+
+    // NEW METHOD: Export single supplier and save to DB but return History object (no download)
+    public ExportHistory exportSingleSupplierToExcelDbOnly(Supplier supplier) throws IOException {
+        if (supplier == null) {
+            throw new IllegalArgumentException("Supplier cannot be null");
+        }
+
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            // Create styles once
+            CellStyle headerStyle = createHeaderStyle(workbook);
+            CellStyle dataStyle = createDataStyle(workbook);
+
+            // Create sheet for the single supplier
+            Sheet sheet = workbook.createSheet(sanitizeSheetName(supplier.getName()));
+
+            // Create header row
+            createHeaders(sheet.createRow(0), headerStyle);
+
+            // Add client data
+            int rowNum = 1;
+            for (Client client : supplier.getClients()) {
+                Row row = sheet.createRow(rowNum++);
+                populateClientData(row, client, dataStyle);
+            }
+
+            // Auto-size columns
+            for (int i = 0; i < 30; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            workbook.write(outputStream);
+            byte[] excelBytes = outputStream.toByteArray();
+
+            // Save export history to database
+            String fileName = sanitizeSheetName(supplier.getName()) + "_export_" + LocalDate.now() + ".xlsx";
+            ExportHistory history = new ExportHistory(fileName, excelBytes);
+
+            return exportHistoryRepository.save(history); // Save to DB and return the record
+        }
+    }
 
 }

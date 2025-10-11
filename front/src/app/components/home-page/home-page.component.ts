@@ -264,10 +264,10 @@ export class HomePageComponent implements OnInit {
       }
     }
   }
-// Add this method for Excel export
-  exportToExcel() {
+
+exportToExcel() {
     this.isExporting = true;
-    this.supplierService.exportSuppliersToExcel().subscribe({
+    this.supplierService.exportSuppliersToDbOnly().subscribe({
       next: () => {
         this.isExporting = false;
         this.toastr.success('Export Excel terminé avec succès', 'Succès');
@@ -1333,9 +1333,10 @@ export class HomePageComponent implements OnInit {
     }
   }
 
+
   exportSupplierExcel() {
     if (this.selectedSupplier?.id) {
-      this.supplierService.exportSupplierToExcel(this.selectedSupplier.id).subscribe(
+      this.supplierService.exportSupplierToDbOnly(this.selectedSupplier.id).subscribe(
         () => {
           // Optional: Add success notification
           console.log('Export successful');
