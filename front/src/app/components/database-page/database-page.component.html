@@ -39,10 +39,12 @@
           style="height: 40px;">
           <i class="fas" [class.fa-database]="showX" [class.fa-users]="!showX"></i> &nbsp;&nbsp;
           {{ showX ? 'Afficher la base de données' : 'Afficher les clients' }}
-        </button>
+        </button><!--
+
         <button (click)="exportToExcel()" [disabled]="isExporting" class="btn btn-success" style="height: 40px;">
           <i class="fas fa-file-excel"></i> &nbsp;&nbsp;{{ isExporting ? 'Export en cours...' : 'Exporter Excel' }}
         </button>
+        -->
         <div class="year-filter-container" style="margin-bottom: 20px;">
           <div class="row">
             <div class="col-md-5">  <!-- Supplier dropdown -->
@@ -200,7 +202,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Close</button>
+          <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">&nbsp;&nbsp;Fermer&nbsp;&nbsp;</button>
         </div>
       </div>
     </div>
@@ -249,13 +251,12 @@
       <div class="modal-footer" style="margin-top: -20px;">
         <button
                 type="button"
-                class="btn btn-outline-secondary"
-                (click)="backToSheetSelection()">
-          <i class="fas fa-arrow-left"></i> Back to Sheets
+                class="btn btn-secondary"
+                (click)="backToSheetSelection()">&nbsp;&nbsp;
+          <i class="fas fa-arrow-left"></i> &nbsp;Retour&nbsp;&nbsp;
         </button>
-        <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">Close</button>
         <button type="button" class="btn btn-primary" (click)="downloadCurrentExcel()" [disabled]="!excelData">
-          <i class="fas fa-download"></i> Download
+          <i class="fas fa-download"></i> Télécharger
         </button>
       </div>
     </div>
