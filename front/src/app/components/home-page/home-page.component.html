@@ -31,19 +31,18 @@
       <button class="btn btn-primary mb-3" (click)="goToPage()">
         <i class="fas fa-file-alt"></i>  Rapports
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-      <button class="btn btn-primary mb-3" (click)="goToDataBase()">
-        <i class="fas fa-file-alt"></i>  goToDataBase
-      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <button class="btn btn-primary mb-3" (click)="goToPayement()">
         <i class="fas fa-file-alt"></i>  Paiement
       </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <!-- Add the export button -->
       <button class="btn btn-info mb-3" (click)="handleExportAndView_DB()" [disabled]="isExporting">
         <i class="fas fa-file-excel"></i>
-        {{ isExporting ? 'Export en cours...' : 'Exporter Excel' }}
-      </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
+        {{ isExporting ? 'Export en cours...' : 'Exporter vers Excel' }}
+      </button>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <button class="btn mb-3" (click)="goToDataBase()" style="background-color: #6f42c1; border-color: #6f42c1; color: white;">
+        <i class="fas fa-archive"></i> fichier sauvegarde
+      </button>
       <!--
       <button class="btn btn-info mb-3" (click)="viewExportlatest()" class="btn btn-primary mr-2">
         <i class="fas fa-eye"></i> View Latest Export
